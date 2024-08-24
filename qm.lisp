@@ -15,3 +15,5 @@
 
 (setf (get '$dagger 'dissym) '(#\†))
 (setf (get '$dagger 'dimension) 'dimension-postfix)
+
+(setf (get '$braket 'commutes-with-conjugate) t)

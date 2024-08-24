@@ -61,6 +61,9 @@ matrix([a,b]) $
 brap(b);
 true $
 
+(remvalue(b),0);
+0$
+
 dagger(bra([%i,2]));
 matrix([-%i],[2]) $
 
