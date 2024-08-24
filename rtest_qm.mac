@@ -26,7 +26,7 @@ ket([c1,c2]);
 matrix([c1],[c2]) $
 
 facts();
-[kind(ħ,real),ħ > 0,kind(c1,complex),kind(c2,complex)] $
+[ħ > 0,kind(c1,complex),kind(c2,complex)] $
 
 kill(c1,c2);
 done $
@@ -38,7 +38,7 @@ bra([c1,c2]);
 matrix([c1,c2]) $
 
 facts();
-[kind(ħ,real),ħ > 0] $
+[ħ > 0] $
 
 kill(a,b,k);
 done $
