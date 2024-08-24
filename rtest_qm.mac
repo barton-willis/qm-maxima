@@ -71,34 +71,35 @@ declare([a,b,c],complex);
 done $
 
 braket(ket([a,b,c]),ket([a,b,c]));
-braket(matrix([a],[matrix([a,b])],[c]),matrix([a],[matrix([a,b])],[c])) $
+c*conjugate(c)+b*conjugate(b)+a*conjugate(a)$
 
 declare([a,b,c],complex);
 done $
 
 norm(ket([a,b,c]));
-norm(matrix([a],[matrix([a,b])],[c])) $
+sqrt(c*conjugate(c)+b*conjugate(b)+a*conjugate(a))$
 
 norm(ket(a,b,c));
-norm(ket(a,matrix([a,b]),c)) $
+norm(ket(a,b,c))$
 
 declare([a,b,c,d],complex);
 done $
 
 A:braket(ket([a,b]),ket([c,d]));
-braket(matrix([a],[matrix([a,b])]),matrix([c],[d])) $
+conjugate(b)*d+conjugate(a)*c$
 
 P:magsqr(A);
-braket(matrix([a],[matrix([a,b])]),matrix([c],[d])) $
+(conjugate(b)*d+conjugate(a)*c)*(b*conjugate(d)+a*conjugate(c))$
 
 ket(a)+ket(b);
-ket(matrix([a,b]))+ket(a) $
+ket(a)+ket(b)$
+
 
 braket(bra(a),ket(b));
-0 $
+kron_delta(a,b) $
 
 braket(bra(a)+bra(c),ket(b));
-braket(bra(c)+bra(a),ket(matrix([a,b]))) $
+kron_delta(b,c)+kron_delta(a,b)$
 
 zp;
 matrix([1],[0]) $
@@ -119,10 +120,10 @@ declare([a,b],complex);
 done $
 
 psi:ket([a,b]);
-matrix([a],[matrix([a,b])]) $
+matrix([a],[b])$
 
 psi_x:'xp*braket(xp,psi)+'xm*braket(xm,psi);
-braket(matrix([1/sqrt(2)],[1/sqrt(2)]),matrix([a],[matrix([a,b])]))*xp $
+(b/sqrt(2)+a/sqrt(2))*xp+(a/sqrt(2)-b/sqrt(2))*xm$
 
 sigmay;
 matrix([0,-%i],[%i,0]) $
