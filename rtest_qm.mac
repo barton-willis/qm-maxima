@@ -26,7 +26,7 @@ ket([c1,c2]);
 matrix([c1],[c2]) $
 
 facts();
-[kind(hbar,real),hbar > 0,kind(c1,complex),kind(c2,complex)] $
+[kind(ħ,real),ħ > 0,kind(c1,complex),kind(c2,complex)] $
 
 kill(c1,c2);
 done $
@@ -38,7 +38,7 @@ bra([c1,c2]);
 matrix([c1,c2]) $
 
 facts();
-[kind(hbar,real),hbar > 0] $
+[kind(ħ,real),ħ > 0] $
 
 kill(a,b,k);
 done $
@@ -125,22 +125,22 @@ sigmay;
 matrix([0,-%i],[%i,0]) $
 
 Sy;
-matrix([0,-((%i*hbar)/2)],[(%i*hbar)/2,0]) $
+matrix([0,-((%i*ħ)/2)],[(%i*ħ)/2,0]) $
 
 commutator(Sx,Sy);
-matrix([(%i*hbar^2)/2,0],[0,-((%i*hbar^2)/2)]) $
+matrix([(%i*ħ^2)/2,0],[0,-((%i*ħ^2)/2)]) $
 
 SY(1/2);
-matrix([0,-((%i*hbar)/2)],[(%i*hbar)/2,0]) $
+matrix([0,-((%i*ħ)/2)],[(%i*ħ)/2,0]) $
 
 SX(1);
-matrix([0,sqrt(2)*hbar,0],[0,0,sqrt(2)*hbar],[0,0,0])$
+matrix([0,sqrt(2)*ħ,0],[0,0,sqrt(2)*ħ],[0,0,0])$
 
 ev(expect(Sy,xp+ym),ratsimp);
--hbar $
+-ħ $
 
 ev(qm_variance(Sy,xp+ym),ratsimp);
-(%i*hbar)/2 $
+(%i*ħ)/2 $
 
 jm_bra(3/2,1/2);
 jm_bra(3/2,1/2) $
@@ -188,22 +188,22 @@ k:jm_ket([j,m]);
 [jmket,matrix([j,m])] $
 
 JP(k);
-hbar*'jm_ket(j,m+1)*sqrt(j*(j+1)-m*(m+1)) $
+ħ*'jm_ket(j,m+1)*sqrt(j*(j+1)-m*(m+1)) $
 
 JM(k);
-hbar*'jm_ket(j,m-1)*sqrt(j*(j+1)-(m-1)*m) $
+ħ*'jm_ket(j,m-1)*sqrt(j*(j+1)-(m-1)*m) $
 
 Jsqr(k);
-hbar^2*j*(j+1)*'jm_ket(j,m) $
+ħ^2*j*(j+1)*'jm_ket(j,m) $
 
 Jz(k);
-hbar*'jm_ket(j,m)*m $
+ħ*'jm_ket(j,m)*m $
 
 SP(1);
-matrix([0,sqrt(2)*hbar,0],[0,0,sqrt(2)*hbar],[0,0,0]) $
+matrix([0,sqrt(2)*ħ,0],[0,0,sqrt(2)*ħ],[0,0,0]) $
 
 SM(1);
-matrix([0,0,0],[sqrt(2)*hbar,0,0],[0,sqrt(2)*hbar,0]) $
+matrix([0,0,0],[sqrt(2)*ħ,0,0],[0,sqrt(2)*ħ,0]) $
 
 RZ(1/2,t);
 matrix([%e^-((%i*t)/2),0],[0,%e^((%i*t)/2)]) $
