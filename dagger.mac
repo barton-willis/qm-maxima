@@ -4,9 +4,8 @@
 /* TeX support for dagger */
 texput('dagger, "^{\\dagger}", 'postfix);
 
-
-/* TeX support for bra & ket. A solution that better preserves the expression 
-semantics is
+/* TeX support for bra & ket. A solution that preserves the expression 
+semantics is to define
 
    \DeclarePairedDelimiter\bra{\langle}{\rvert} 
    \DeclarePairedDelimiter\ket{\lvert}{\rangle} 
@@ -16,7 +15,7 @@ semantics is
 texput ('bra, ["\\langle", "\\rvert"], 'matchfix); 
 texput ('ket, ["\\lvert ", " \\langle"], 'matchfix);
 
-/* Tell Maxima that 'operator' is a feature.*/
+/* Tell Maxima that 'operator' is a feature. */
 declare(operator, feature);
 operatorp(e) := (mapatom(e) and featurep(e,'operator))$
 
@@ -35,17 +34,17 @@ daggerp(psi) := not mapatom(psi) and is(inpart(psi,0) = 'dagger);
 load(simplifying)$
 
 simp_dagger(e) := block([estar],
-    /* e is an operator--look to see if it has a declared operator adjoint*/
-    if operatorp(e) then (
+  /* e is an operator--look to see if it has a declared operator adjoint*/
+  if operatorp(e) then (
       estar : get(e,'operator_adjoint),
       if estar = false then simpfuncall('dagger, e) else estar)
    /* dagger(maptom) = conjugate(mapatom)*/
    elseif mapatom(e) then (
       conjugate(e))
-   /* dagger(bra(e)) = ket(e)*/
+   /* dagger(bra(e)) = ket(e) */
    elseif brap(e) then (
       funmake('ket, args(e)))
-   /* dagger(ket(e)) = bra(e)*/
+   /* dagger(ket(e)) = bra(e) */
    elseif ketp(e) then (
       funmake('bra, args(e)))
    /* for a matrix map dagger onto the matrix & transpose */
@@ -66,7 +65,7 @@ simp_dagger(e) := block([estar],
      /* dagger(a^^b) = dagger(a)^b, where 'b' is a declared integer */
     elseif ncexptp(e) and featurep(second(e), 'integer) then (
         dagger(first(e))^^second(e))    
-    /* what did I forget? Not sure--return a dagger nounform for all others*/
+    /* what did I forget? Not sure--return a dagger nounform for all others */
     else (simpfuncall('dagger, e)))$
 
 simplifying('dagger,'simp_dagger)$
