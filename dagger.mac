@@ -1,0 +1,58 @@
+/* Tex support for dagger */
+texput ('dagger, "^{\\dagger}", 'postfix);
+
+/* Tell Maxima that 'operator' is a feature.*/
+declare(operator, feature);
+operatorp(e) := (mapatom(e) and featurep(e,'operator))$
+
+/* Lots of predicates*/
+
+plusp(e) := (not mapatom(e)) and inpart(e,0) = "+";
+timesp(e) := (not mapatom(e)) and inpart(e,0) = "*";
+exptp(e) := (not mapatom(e)) and inpart(e,0) = "^";
+nctimesp(e) := (not mapatom(e)) and inpart(e,0) = ".";
+ncexptp(e) := (not mapatom(e)) and inpart(e,0) = "^^";
+
+brap(psi) := not mapatom(psi) and is(inpart(psi,0) = 'bra);
+ketp(psi) := not mapatom(psi) and is(inpart(psi,0) = 'ket);
+daggerp(psi) := not mapatom(psi) and is(inpart(psi,0) = 'dagger);
+
+/* Define dagger as a simplifying function */
+load(simplifying)$
+
+simp_dagger(e) := block([estar],
+    /* e is an operator--look to see if it has a declared operator adjoint*/
+    if operatorp(e) then (
+      estar : get(e,'operator_adjoint),
+      if estar = false then simpfuncall('dagger, e) else estar)
+   /* dagger(maptom) = conjugate(mapatom)*/
+   elseif mapatom(e) then (
+      conjugate(e))
+   /* dagger(bra(e)) = ket(e)*/
+   elseif brap(e) then (
+      funmake('ket, args(e)))
+   /* dagger(ket(e)) = bra(e)*/
+   elseif ketp(e) then (
+      funmake('bra, args(e)))
+   /* for a matrix map dagger onto the matrix & transpose */
+   elseif matrixp(e) then (
+       block(matrix_element_transpose : 'dagger, transpose(e)))
+   /* dagger is an involution */
+   elseif daggerp(e) then (
+        first(e))
+    /* dagger is additive and multiplicative */
+    elseif mplusp(e) or mtimesp(e) then (
+        map('dagger, e))
+    /* dagger(a.b) = dagger(b).dagger(a) */
+    elseif nctimesp(e) then (
+        apply(".", map('dagger, reverse(args(e)))))
+    /* dagger(a^b) = dagger(a)^b, where 'b' is a declared integer */
+    elseif exptp(e) and featurep(second(e), 'integer) then (
+        dagger(first(e))^second(e))
+     /* dagger(a^^b) = dagger(a)^b, where 'b' is a declared integer */
+    elseif ncexptp(e) and featurep(second(e), 'integer) then (
+        dagger(first(e))^^second(e))    
+    /* what did I forget? Return a dagger nounform */
+    else (simpfuncall('dagger, e)))$
+
+simplifying('dagger,'simp_dagger)$
