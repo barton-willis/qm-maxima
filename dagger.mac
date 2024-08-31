@@ -1,12 +1,26 @@
-/* Tex support for dagger */
-texput ('dagger, "^{\\dagger}", 'postfix);
+/* Barton Willis
+   This work is marked with CC0 1.0 Universal */
+
+/* TeX support for dagger */
+texput('dagger, "^{\\dagger}", 'postfix);
+
+
+/* TeX support for bra & ket. A solution that better preserves the expression 
+semantics is
+
+   \DeclarePairedDelimiter\bra{\langle}{\rvert} 
+   \DeclarePairedDelimiter\ket{\lvert}{\rangle} 
+
+ See https://tex.stackexchange.com/questions/214728/braket-notation-in-latex */
+
+texput ('bra, ["\\langle", "\\rvert"], 'matchfix); 
+texput ('ket, ["\\lvert ", " \\langle"], 'matchfix);
 
 /* Tell Maxima that 'operator' is a feature.*/
 declare(operator, feature);
 operatorp(e) := (mapatom(e) and featurep(e,'operator))$
 
 /* Lots of predicates*/
-
 plusp(e) := (not mapatom(e)) and inpart(e,0) = "+";
 timesp(e) := (not mapatom(e)) and inpart(e,0) = "*";
 exptp(e) := (not mapatom(e)) and inpart(e,0) = "^";
@@ -52,7 +66,7 @@ simp_dagger(e) := block([estar],
      /* dagger(a^^b) = dagger(a)^b, where 'b' is a declared integer */
     elseif ncexptp(e) and featurep(second(e), 'integer) then (
         dagger(first(e))^^second(e))    
-    /* what did I forget? Return a dagger nounform */
+    /* what did I forget? Not sure--return a dagger nounform for all others*/
     else (simpfuncall('dagger, e)))$
 
 simplifying('dagger,'simp_dagger)$
