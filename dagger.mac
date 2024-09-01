@@ -10,13 +10,16 @@ semantics is to place
    \DeclarePairedDelimiter\bra{\langle}{\rvert} 
    \DeclarePairedDelimiter\ket{\lvert}{\rangle} 
 
-in the preamble of a document. But after that, I'm not sure how to o a
-texput that results in tex(bra(1,0,0)) --> \bra{1,0,0}? Possibly texput
-isn't up to this task?
+in the preamble of a document. Then issue the texput commands
 
- See https://tex.stackexchange.com/questions/214728/braket-notation-in-latex 
+   texput('bra, "\\bra");
+   texput('ket, "\\ket");
+
+ For the \DeclarePairedDelimiter\bra{\langle}{\rvert} soliution, see
+ https://tex.stackexchange.com/questions/214728/braket-notation-in-latex 
  
- So we'll support typeseting with:  */
+ But we'll support typeseting with a solution that doesn't require a declaring
+ a special environment:  */
 
 texput ('bra, ["\\langle ", " \\rvert"], 'matchfix); 
 texput ('ket, ["\\lvert ", " \\langle"], 'matchfix);
@@ -40,7 +43,7 @@ daggerp(psi) := not mapatom(psi) and is(inpart(psi,0) = 'dagger);
 load(simplifying)$
 
 simp_dagger(e) := block([estar],
-  /* e is an operator--look to see if it has a declared operator adjoint*/
+  /* e is an operator--look to see if it has a declared operator adjoint */
   if operatorp(e) then (
       estar : get(e,'operator_adjoint),
       if estar = false then simpfuncall('dagger, e) else estar)
@@ -53,7 +56,7 @@ simp_dagger(e) := block([estar],
    /* dagger(ket(e)) = bra(e) */
    elseif ketp(e) then (
       funmake('bra, args(e)))
-   /* for a matrix map dagger onto the matrix & transpose */
+   /* for a matrix, map dagger onto the matrix & transpose */
    elseif matrixp(e) then (
        block(matrix_element_transpose : 'dagger, transpose(e)))
    /* dagger is an involution */
