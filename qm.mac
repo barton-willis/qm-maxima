@@ -16,27 +16,34 @@
 ;; Quantum mechanics package for Maxima.
 */
 
-qm_version: "0.8"$
+qm_version: "0.9pre"$
 
-/* load("groups_ehm.mac") $ */
+/* load additional codes */
 load("qm.lisp") $
+load("autoket.mac") $
+
 /* load the documentation */
 load("qm-index.lisp")$
 load("qm-index-html.lisp")$
 
-/* This definition of complep finds anything declared complex to be true */
+/******************/
+/*    flags       */
+/******************/
+
+/*****************************************/
+/*    complexp and realp predicates      */
+/*****************************************/
+/* This definition of complexp finds anything declared complex to be true */
 complexp(z):=block([y:imagpart(z)],
 	if featurep(z,complex) or featurep(conjugate(z),complex) then return(true),
 	if y#0 and numberp(y) then return(true),
 	false);
-realp(r):=block(if featurep(r,real) and complexp(r)=false then return(true), false);	
+realp(r):=block(if featurep(r,real) and complexp(r)=false and not matrixp(r)
+		   then return(true), false);	
 
 /******************************/
 /* Simplification definitions */
 /******************************/
-matchdeclare([x,y],freeof(%i));
-tellsimpafter(%i*x+%i*y,%i*(x+y));
-
 matchdeclare([x,y],freeof(%i));
 matchdeclare([cc],numberp);
 tellsimpafter(%e^x*(%e^y+cc),%e^(x+y)+cc*%e^x);
@@ -67,22 +74,33 @@ rvec([u]) := matrix(u) $
 /* bras and kets entered as lists will be given matrix representations */
 /* bra and ket of a list represented as row and column matrices, respectively */
 matchdeclare(ll, listp);
-tellsimpafter(bra(ll), matrix(ll));
-tellsimpafter(ket(ll), transpose(matrix (ll)));
+tellsimpafter(mbra(ll), matrix(ll));
+tellsimpafter(mket(ll), transpose(matrix (ll)));
 
 /***************************************/
 /* Rules, simp for general kets/bras   */
 /***************************************/
+/* predicates for general bras and kets, thanks to BW */
+ketp(psi) := not mapatom(psi) and is(inpart(psi,0) = 'ket) $
+brap(psi) := not mapatom(psi) and is(inpart(psi,0) = 'bra) $
 
-declare(dagger,additive);
-declare(braket,additive);
-
+/**********/
 /* dagger */
-matchdeclare([i,j],all);
-tellsimpafter( dagger( bra(i) ), ket(i) );
-tellsimpafter( dagger( ket(i) ), bra(i) );
-tellsimpafter( dagger(i*ket(j)), dagger(i)*bra(j) );
-tellsimpafter( dagger(i*bra(j)), dagger(i)*ket(j) );
+/**********/
+declare(dagger,additive);
+declare(dagger,multiplicative);
+
+matchdeclare([i,j],all,mm,mapatom,nn,integerp);
+simp:false; tellsimp( dagger(dagger(i)) , i); simp:true;
+simp:false; tellsimp( dagger(mm^nn), dagger(mm)^nn ); simp:true;
+simp:false; tellsimp( dagger( i . j ) , dagger(j) . dagger(i) ); simp:true;
+
+/* dagger for general kets and bras */
+matchdeclare([i,j],all,[L1,L2],listp);
+tellsimpafter( dagger( bra(L1) ), ket(L1) );
+tellsimpafter( dagger( ket(L1) ), bra(L1) );
+tellsimpafter( dagger( i*ket(L1)), dagger(i)*bra(L1) );
+tellsimpafter( dagger( i*bra(L1)), dagger(i)*ket(L1) );
 
 /* simplify dagger for complex and real numbers */
 matchdeclare(cx,complexp,rx,numberp,rr,realp);
@@ -91,36 +109,73 @@ simp:false; tellsimp( dagger(rx) , rx ); simp:true;
 simp:false; tellsimp( dagger(rr) , rr ); simp:true;
 
 /* special case of dagger for matrix argument */
-matchdeclare(mx, matrixp);
-tellsimpafter(dagger (mx), conjugate (transpose (mx)));
+matchdeclare(mx, matrixp,nn,integerp);
+simp:false; tellsimp( dagger( mx^nn ), dagger(mx)^nn );
+simp:false; tellsimp( dagger( mx^^nn ), dagger(mx)^^nn );
+tellsimpafter( dagger(mx), conjugate(transpose (mx)) );
 
-/* braket */
-matchdeclare([kk,ll], ketp, bb, brap );
+/********************/
+/*    braket        */
+/********************/
+declare(braket,additive);
+
+/* braket rules for matrix reps */
+matchdeclare([kk,ll], mketp, bb, mbrap );
 tellsimpafter( braket(bb,kk) , bb . kk );
 tellsimpafter( braket(ll,kk) , dagger(ll) . kk);
 tellsimpafter( braket(kk,bb) , false );
 tellsimpafter( braket(bb,bb) , false );
 
-/* <a|b> --> delta(a,b), assumes an orthonormal set */
+/************************************/
+/* simp rules for general kets bras */
+/************************************/
+matchdeclare([L1,L2],listp);
+tellsimpafter(braket(ket(L1),ket(L2)), bra(L1) . ket(L2) );
+
 cnump(z):=if complexp(z) or numberp(z) then true;
-matchdeclare([a,b,i,j,A1,A2],all,[cx1,cx2,cx3,cx4],cnump);
-tellsimpafter( a . (A1+A2), ev( expand(a . (A1 + A2)) ));
-simp:false; tellsimpafter( cx1*bra(i) . cx3*ket(j), cx1*cx3* (bra(i) . ket(j))); simp:true;
-simp:false; tellsimpafter( bra(i)*cx2 . ket(j)*cx4, cx2*cx4* (bra(i) . ket(j))); simp:true;
-simp:false; tellsimpafter( bra(i)*cx2 . cx3*ket(j), cx2*cx3* (bra(i) . ket(j))); simp:true;
-simp:false; tellsimpafter( cx1*bra(i) . ket(j)*cx4, cx1*cx4* (bra(i) . ket(j))); simp:true;
+matchdeclare([a,b,A1,A2],all,[cx1,cx2,cx3,cx4],cnump,[L1,L2],listp);
+tellsimpafter( a . (A1+A2), expand(a . (A1 + A2)) );
+simp:false; tellsimpafter( cx1*bra(L1) . cx3*ket(L2), cx1*cx3* (bra(L1) . ket(L2))); simp:true;
+simp:false; tellsimpafter( bra(L1)*cx2 . ket(L2)*cx4, cx2*cx4* (bra(L1) . ket(L2))); simp:true;
+simp:false; tellsimpafter( bra(L1)*cx2 . cx3*ket(L2), cx2*cx3* (bra(L1) . ket(L2))); simp:true;
+simp:false; tellsimpafter( cx1*bra(L2) . ket(L2)*cx4, cx1*cx4* (bra(L1) . ket(L2))); simp:true;
 
-/* this works because of the way the simplifier outputs things */
-tellsimpafter( (bra(i)*cx1) . (ket(j)*cx2), cx1*cx2*(bra(i) . ket(j)));
+/* Very important rule that allows simplification of general expressions. */
+/* This works because of the way the simplifier outputs things in () */
+tellsimpafter( (bra(L1)*a) . (ket(L2)*b), a*b*(bra(L1) . ket(L2)));
 
-tellsimpafter( bra(i) . ket(j), braket(bra(i),ket(j)));
-tellsimpafter( braket(bra(a),ket(b)), kron_delta(a,b));
-tellsimpafter( braket(cx1*bra(i),cx2*ket(j)), cx1*cx2*kron_delta(i,j));
+matchdeclare([L1,L2,L3],listp,[a,b],all);
+tellsimpafter(bra(L1) . ket(L2) . a , braket(bra(L1),ket(L2)) . a);
+tellsimpafter(a . bra(L1) . ket(L2) , a . braket(bra(L1),ket(L2)));
+tellsimpafter(a . bra(L1) . ket(L2) . b , a . braket(bra(L1),ket(L2)) . b);
 
-/* norm */
-matchdeclare( kk, ketp, bb, brap );
-tellsimpafter(norm (kk), sqrt( braket(kk,kk) ));
-tellsimpafter(norm (bb), sqrt( braket(bb,dagger(bb)) ));
+/* <a|b> --> delta(a,b), assumes an orthonormal set */
+tellsimpafter( bra(L1) . ket(L2), braket(bra(L1),ket(L2)));
+tellsimpafter( braket(bra(L1),ket(L2)), gsimpbraket(L1,L2) );
+gsimpbraket(L1,L2):=block([i,l1flag:0,l2flag:0,prod:1,
+	L3:makelist("-",i,length(L1)),L4:makelist("-",i,length(L2))],
+	if length(L1)#length(L2) then return(false),
+	for i: 1 thru length(L1) do
+	    if L1[i]=Id then (L4[i]:L2[i],l1flag:1)
+	    elseif L2[i]=Id then (L3[i]:L1[i],l2flag:1) else
+	    prod: prod * kron_delta(L1[i],L2[i]),
+	    if l1flag=1 then return(prod*ket(L4))
+	    elseif l2flag=1 then return(prod*bra(L3))
+	    else return(prod) );
+
+
+/*********************************/
+/*     miscellaneous rules       */
+/*********************************/
+/* norm for matrix represented kets/bras */
+matchdeclare( kk, mketp, bb, mbrap );
+tellsimpafter(norm(kk), sqrt( braket(kk,kk) ));
+tellsimpafter(norm(bb), sqrt( braket(bb,dagger(bb)) ));
+
+/* norm for abstract kets/bras */
+matchdeclare( ak, ketp, ab, brap );
+tellsimpafter(norm(ak),1);
+tellsimpafter(norm(ab),1);
 
 /* magsqr */
 magsqr(c) := c*conjugate(c);
@@ -136,12 +191,12 @@ probability(psi,n) := magsqr(psi[n]);
 /***************************************/
 /* Define predicates for kets and bras */
 /***************************************/
-ketp(psi) := block([r,c],
+mketp(psi) := block([r,c],
      if matrixp(psi) then (
         [r,c] : matrix_size(psi),
         (c = 1) and (r > 1) and every(lambda([q], not (matrixp(q) or listp(q) or setp(q))), psi))
     else false);
-brap(psi) := block([r,c],
+mbrap(psi) := block([r,c],
      if matrixp(psi) then (
         [r,c] : matrix_size(psi),
         (r = 1) and (c > 1) and every(lambda([q], not (matrixp(q) or listp(q) or setp(q))), psi))
@@ -158,47 +213,47 @@ rationalp(a):= if integerp(num(a)) and integerp(denom(a)) then true else false;
 sym_ratp(a):=block(if symbolp(a) or rationalp(a) then
 		      return(true) else return(false) );
 matchdeclare([j,m], sym_ratp );
-tellsimpafter( jm_ket([j,m]) , [jmket, matrix([j,m])] );
-tellsimpafter( jm_bra([j,m]) , [jmbra, matrix([j,m])] );
+tellsimpafter( jmket([j,m]) , [jmket, matrix([j,m])] );
+tellsimpafter( jmbra([j,m]) , [jmbra, matrix([j,m])] );
 
-jm_ketp(k) := if k[1]#jmket then false else true$
-jm_brap(k) := if k[1]#jmbra then false else true$
+jmketp(k) := if k[1]#jmket then false else true$
+jmbrap(k) := if k[1]#jmbra then false else true$
 
-matchdeclare(jb, jm_brap, jk, jm_ketp); /* covers the matrix rep */
-tellsimpafter( jm_braket(jb,jk), simp_jm_braket(jb,jk) );
-simp_jm_braket(b,k) := block([j1,j2,m1,m2],
+matchdeclare(jb, jmbrap, jk, jmketp); /* covers the matrix rep */
+tellsimpafter( jmbraket(jb,jk), simp_jmbraket(jb,jk) );
+simp_jmbraket(b,k) := block([j1,j2,m1,m2],
 	     if b[1]#jmbra or k[1]#jmket then return(false),
 	     j1:b[2][1][1], m1:b[2][1][2], j2:k[2][1][1], m2:k[2][1][2],
 	     if j1=j2 and m1=m2 then return(1) else return(0) )$
 /* Check that m is within -j to +j */
-jm_check(j,m) := block([pos:0],
+jmcheck(j,m) := block([pos:0],
 	      if rationalp(j)=false or rationalp(m)=false then return(false) else
 	      	 for jn: j step -1 thru -j do
 		     if jn=m then pos:1,
 		 if pos=1 then true else false )$
 JP(k) := block([j,m,sqrterm],
       if k[1]#jmket then return(false),
-      j:k[2][1][1], m:k[2][1][2], sqrterm:sqrt(j*(j+1)-m*(m+1))*ħ,
+      j:k[2][1][1], m:k[2][1][2], sqrterm:sqrt(j*(j+1)-m*(m+1))*hbar,
       return( sqrterm * 'jm_ket(j,m+1) ) )$
 JM(k) := block([j,m,sqrterm],
       if k[1]#jmket then return(false),
-      j:k[2][1][1], m:k[2][1][2], sqrterm:sqrt(j*(j+1)-m*(m-1))*ħ,
+      j:k[2][1][1], m:k[2][1][2], sqrterm:sqrt(j*(j+1)-m*(m-1))*hbar,
       return( sqrterm * 'jm_ket(j,m-1) ) )$
 Jsqr(k) := block([j,m,sqrterm],
       if k[1]#jmket then return(false),
-      j:k[2][1][1], return( (j*(j+1)) * ħ^2 * 'jm_ket(j,m) ) )$
+      j:k[2][1][1], return( (j*(j+1)) * hbar^2 * 'jm_ket(j,m) ) )$
 Jz(k) := block([j,m,sqrterm],
       if k[1]#jmket then return(false),
-      m:k[2][1][2], return( m * ħ * 'jm_ket(j,m) ) )$
+      m:k[2][1][2], return( m * hbar * 'jm_ket(j,m) ) )$
 
 /********************************************/
-/* Rules, simp for general jm_kets/jm_bras  */
+/* Rules, simp for general jmkets/jmbras    */
 /********************************************/
 matchdeclare([jj1,jj2,mm1,mm2],sym_ratp, c, all);
-tellsimpafter(jm_braket(jm_bra(jj1,mm1),jm_ket(jj2,mm2)),
+tellsimpafter(jmbraket(jmbra(jj1,mm1),jmket(jj2,mm2)),
 	kron_delta(jj1,jj2)*kron_delta(mm1,mm2)); /* <j1m1,j2m2> --> delta(j1j2)*delta(m1m2) */
-tellsimpafter(jm_braket(jm_bra(jj1,mm1)+c, jm_ket(jj2,mm2)),
-	jm_braket(jm_bra(jj1,mm1),jm_ket(jj2,mm2))+jm_braket(c,jm_ket(jj2,mm2))); /* distribution */
+tellsimpafter(jmbraket(jmbra(jj1,mm1)+c, jmket(jj2,mm2)),
+	jmbraket(jmbra(jj1,mm1),jmket(jj2,mm2))+jmbraket(c,jmket(jj2,mm2))); /* distribution */
 
 /******************************************************/
 /******************************************************/
@@ -275,29 +330,29 @@ UU(H,t) := block([M,demoivre:true], Rot(H,t))$
 /*****************************************************************/
 /*****************************************************************/
 /*****************************************************************/
-/*                tensor products                                */
+/*                tensor products in the matrix rep              */
 /*****************************************************************/
 /*****************************************************************/
 /*****************************************************************/
 matchdeclare(ll,listp);
-tellsimpafter(ketprod(ll), simpketprod(ll));
-simpketprod(u) := block([N,fail:0],
+tellsimpafter(tpket(ll), simptpket(ll));
+simptpket(u) := block([N,fail:0],
 	     N: length(u),
 	     for i: 1 thru N do
-	     	 if ketp(''u[i])=false then fail:1,
+	     	 if mketp(''u[i])=false then fail:1,
 	     if fail=0 then [tpket,u]
 	     else disp("all elements must be kets") )$
 
-tellsimpafter(braprod(ll), simpbraprod(ll));
-simpbraprod(u) := block([N,fail:0],
+tellsimpafter(tpbra(ll), simptpbra(ll));
+simptpbra(u) := block([N,fail:0],
 	     N: length(u),
 	     for i: 1 thru N do
-	     	 if brap(''u[i])=false then fail:1,
+	     	 if mbrap(''u[i])=false then fail:1,
 	     if fail=0 then [tpbra,u]
 	     else disp("all elements must be bras") )$
 matchdeclare([L1,L2], listp);
-tellsimpafter(braketprod(L1,L2), simpbraketprod(L1,L2));
-braketprod(B,K) := block([N,M,fail:0,prod:1],
+tellsimpafter(tpbraket(L1,L2), simptpbraket(L1,L2));
+simptpbraket(B,K) := block([N,M,fail:0,prod:1],
 		if is(B[1]#tpbra) then return(false),
 		if is(K[1]#tpket) then return(false),
 		N: length(B[2]),
@@ -307,7 +362,3 @@ braketprod(B,K) := block([N,M,fail:0,prod:1],
 		     prod: prod*braket(B[2][i],K[2][i]),
 		prod )$
 
-/*******************************************/
-/* Rules and simp for general tensor prods */
-/*******************************************/
-/* This is much harder */

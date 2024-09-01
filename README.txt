@@ -7,53 +7,118 @@ Package qm
 1.1 Introduction to package qm
 ==============================
 
-The ‘qm’ package provides functions and standard definitions to solve
+The ‘qm’ package was written by Eric Majzoub, University of Missouri.
+Email: majzoube-at-umsystem.edu
+
+   The package is loaded with: ‘load(qm);’
+
+   The ‘qm’ package provides functions and standard definitions to solve
 quantum mechanics problems in a finite dimensional Hilbert space.  For
 example, one can calculate the outcome of Stern-Gerlach experiments
-using the built-in definition of the Sx, Sy, and Sz operators for
-arbitrary spin, e.g.  ‘s={1/2, 1, 3/2, ...}’.  For spin-1/2 the standard
-basis states in the <x>, <y>, and <z>-basis are available as ‘{xp,xm}’,
-‘{yp,ym}’, and ‘{zp,zm}’.  One can create general ket vectors with
-arbitrary but finite dimension and perform standard computations such as
-expectation value, variance, etc.  The angular momentum <|j,m>>
-representation of kets is also available.  It is also possible to create
-tensor product states for multiparticle systems and to perform
+using built-in definitions of the Sx, Sy, and Sz operators for arbitrary
+spin, e.g.  ‘s={1/2, 1, 3/2, ...}’.  For spin-1/2 the standard basis
+states in the ‘x’, ‘y’, and ‘z’-basis are available as ‘{xp,xm}’,
+‘{yp,ym}’, and ‘{zp,zm}’, respectively.  One can create general ket
+vectors with arbitrary but finite dimension and perform standard
+computations such as expectation value, variance, etc.  The angular
+momentum <|j,m>> representation of kets is also available.  Tensor
+product states for multiparticle systems can be created to perform
 calculations on those systems.
 
-   Kets and bras are represented by column and row vectors,
-respectively.  For spin-1/2 particles, for example, the bra vector
+   Let us consider a simple example involving spin-1/2 particles.  A bra
+vector in the ‘z’-basis may be written as
 
-   ‘<psi| = a <z+| + b <z-|’
 
-   is represented by the row vector ‘[a b]’, where the basis vectors are
 
-   ‘<z+| = [1 0]’
+           ‘<psi| = a <z+| + b <z-|’.
 
-   and
+   The bra will be represented in Maxima by the row vector ‘[a b]’,
+where the basis vectors are
 
-   ‘<z-| = [0 1]’.
+           ‘<z+| = [1 0]’
 
-   Generally, if one wishes to do purely symbolic calculations, then
-input of basic kets, (j,m)-kets, and so forth should be done without
-lists.  If one wishes to do numerical computations using the kets then
-enter the arguments as a list.  See the following examples.
+and
 
-     (%i1) ket(a,b)+ket(c,d);
-     (%o1)                           |c, d> + |a, b>
-     (%i2) ket([a,b])+ket([c,d]);
+           ‘<z-| = [0 1]’.
+
+   There are two types of kets and bras available in this package, the
+first type is given by a _matrix representation_, as in the above
+example.  ‘mket’s are column vectors and ‘mbra’s are row vectors, and
+their components are entered as Maxima _lists_ in the ‘mbra’ and ‘mket’
+functions.  The second type of bra or ket is _abstract_; there is no
+matrix representation.  Abstract bras and kets are entered using the
+‘bra’ and ‘ket’ functions using Maxima lists for the elements.  These
+general kets are displayed in Dirac notation.  For example, a tensor
+product of two ket vectors ‘|a>’ and ‘|b>’ is input as ‘ket([a,b])’ and
+displayed as
+
+
+
+           ‘|[a,b]>’      (general ket)
+
+Note that abstract kets and bras are _assumed to be orthonormal_.  These
+general bras and kets may be used to build arbitrarily large tensor
+product states.  Tensor product states in the matrix representation are
+also available through the ‘tpket’ and ‘tpbra’ commands.
+
+   The following examples illustrate some of the basic capabilities of
+the ‘qm’ package.  Here both abstract, and concrete (matrix
+representation) kets are shown.
+
+     (%i1) ket([a,b])+ket([c,d]);
+     (%o1)                         |[c, d]> + |[a, b]>
+     (%i2) mket([a,b])+mket([c,d]);
                                         [ c + a ]
      (%o2)                              [       ]
                                         [ d + b ]
-     (%i1) ketprod('zp,'zm)+ketprod('zm,'zp);
-     (%o1)                  ketprod(zp, zm) + ketprod(zm, zp)
-     (%i2) ketprod([zp,zm]);
+     (%i3) bell:(1/sqrt(2))*(ket([u,d])-ket([d,u]));
+                                   |[u, d]> - |[d, u]>
+     (%o3)                         -------------------
+                                         sqrt(2)
+
+   Note that ‘ket([a,b])’ is treated as tensor product of states ‘a’ and
+‘b’ as shown below.
+
+     (%i1) braket(bra([a1,b1]),ket([a2,b2]));
+     (%o1)                kron_delta(a1, a2) kron_delta(b1, b2)
+
+   Next, tensor products of the spin-1/2 basis states ‘{zp,zm}’ are
+shown in the matrix representation.
+
+     (%i1) tpket([zp,zm]);
                                           [ 1 ]  [ 0 ]
-     (%o2)                       [tpket, [[   ], [   ]]]
+     (%o1)                       [tpket, [[   ], [   ]]]
                                           [ 0 ]  [ 1 ]
 
-   The ‘qm’ package was written by Eric Majzoub, University of Missouri.
-(Email: majzoube-at-umsystem.edu) The package is loaded with:
-‘load(qm);’
+   Constants that multiply kets and bras must be declared complex by the
+user in order for the dagger function to properly conjugate such
+constants.  The example below illustrates this behavior.
+
+     (%i1) declare([a,b],complex);
+     (%o1)                                done
+     (%i2) psi:a*ket([1])+b*ket([2]);
+     (%o2)                          |[2]> b + |[1]> a
+     (%i3) psidag:dagger(psi);
+     (%o3)               <[2]| conjugate(b) + <[1]| conjugate(a)
+     (%i4) psidag . psi;
+     (%o4)                   b conjugate(b) + a conjugate(a)
+
+   The following shows how to declare a ket with both real and complex
+components in the matrix representation.
+
+     (%i1) declare([c1,c2],complex,r,real);
+     (%o1)                                done
+     (%i2) k:mket([c1,c2,r]);
+                                         [ c1 ]
+                                         [    ]
+     (%o2)                               [ c2 ]
+                                         [    ]
+                                         [ r  ]
+     (%i3) b:dagger(k);
+     (%o3)                 [ conjugate(c1)  conjugate(c2)  r ]
+     (%i4) b . k;
+                         2
+     (%o4)              r  + c2 conjugate(c2) + c1 conjugate(c1)
 
 1.2 Functions and Variables for qm
 ==================================
@@ -63,77 +128,140 @@ enter the arguments as a list.  See the following examples.
      floating point value, but is declared to be a real number greater
      than zero.
 
- -- Function: ket ([c_{1},c_{2},...])
-     ‘ket’ creates a _column_ vector of arbitrary finite dimension.  The
-     entries ‘c_{i}’ can be any Maxima expression.  The user must
+ -- Function: ket ([k_{1},k_{2},...])
+     ‘ket’ creates a general state ket, or tensor product, with symbols
+     ‘k_{i}’ representing the states.  The state kets ‘k_{i}’ are
+     assumed to be orthonormal.
+
+     (%i1) k:ket([u,d]);
+     (%o1)                              |[u, d]>
+     (%i2) b:bra([u,d]);
+     (%o2)                              <[u, d]|
+     (%i3) b . k;
+     (%o3)                                  1
+
+ -- Function: ketp (abstract ket)
+     ‘ketp’ is a predicate function for abstract kets.  It returns
+     ‘true’ for abstract ‘ket’s and ‘false’ for anything else.
+
+ -- Function: bra ([b_{1},b_{2},...])
+     ‘bra’ creates a general state bra, or tensor product, with symbols
+     ‘b_{i}’ representing the states.  The state bras ‘b_{i}’ are
+     assumed to be orthonormal.
+
+     (%i1) k:ket([u,d]);
+     (%o1)                              |[u, d]>
+     (%i2) b:bra([u,d]);
+     (%o2)                              <[u, d]|
+     (%i3) b . k;
+     (%o3)                                  1
+
+ -- Function: brap (abstract bra)
+     ‘brap’ is a predicate function for abstract bras.  It returns
+     ‘true’ for abstract ‘bra’s and ‘false’ for anything else.
+
+ -- Function: mket ([c_{1},c_{2},...])
+     ‘mket’ creates a _column_ vector of arbitrary finite dimension.
+     The entries ‘c_{i}’ can be any Maxima expression.  The user must
      ‘declare’ any relevant constants to be complex.  For a matrix
      representation the elements must be entered as a list in ‘[...]’
-     square brackets.  If no list is entered the ket is represented as a
-     general ket, ‘ket(a)’ will return ‘|a>’.
+     square brackets.
 
-     (%i1) kill(a);
+     (%i1) declare([c1,c2],complex);
      (%o1)                                done
-     (%i2) ket(a);
-     (%o2)                                 |a>
-     (%i3) declare([c1,c2],complex);
-     (%o3)                                done
-     (%i4) ket([c1,c2]);
+     (%i2) mket([c1,c2]);
                                          [ c1 ]
-     (%o4)                               [    ]
+     (%o2)                               [    ]
                                          [ c2 ]
-     (%i5) facts();
-     (%o5) [kind(hbar, real), hbar > 0, kind(c1, complex), kind(c2, complex)]
+     (%i3) facts();
+     (%o3) [kind(hbar, real), hbar > 0, kind(c1, complex), kind(c2, complex)]
 
- -- Function: bra ([c_{1},c_{2},...])
-     ‘bra’ creates a _row_ vector of arbitrary finite dimension.  The
+ -- Function: mketp (_vector_)
+     ‘mketp’ is a predicate function that checks if its input is an
+     mket, in which case it returns ‘true’, else it returns ‘false’.
+     ‘mketp’ only returns ‘true’ for the matrix representation of a ket.
+
+     (%i1) k:ket([a,b]);
+     (%o1)                              |[a, b]>
+     (%i2) mketp(k);
+     (%o2)                                false
+     (%i3) k:mket([a,b]);
+                                          [ a ]
+     (%o3)                                [   ]
+                                          [ b ]
+     (%i4) mketp(k);
+     (%o4)                                true
+
+ -- Function: mbra ([c_{1},c_{2},...])
+     ‘mbra’ creates a _row_ vector of arbitrary finite dimension.  The
      entries ‘c_{i}’ can be any Maxima expression.  The user must
      ‘declare’ any relevant constants to be complex.  For a matrix
      representation the elements must be entered as a list in ‘[...]’
-     square bracbras.  If no list is entered the bra is represented as a
-     general bra, ‘bra(a)’ will return ‘<a|’.
+     square brackets.
 
      (%i1) kill(c1,c2);
      (%o1)                                done
-     (%i2) bra(c1,c2);
-     (%o2)                              <c1, c2|
-     (%i3) bra([c1,c2]);
-     (%o3)                             [ c1  c2 ]
-     (%i4) facts();
-     (%o4)                    [kind(hbar, real), hbar > 0]
+     (%i2) mbra([c1,c2]);
+     (%o2)                             [ c1  c2 ]
+     (%i3) facts();
+     (%o3)                    [kind(hbar, real), hbar > 0]
 
- -- Function: ketp (_vector_)
-     ‘ketp’ is a predicate function that checks if its input is a ket,
-     in which case it returns ‘true’, else it returns ‘false’.  ‘ketp’
-     only returns ‘true’ for the matrix representation of a ket.
+ -- Function: mbrap (_vector_)
+     ‘mbrap’ is a predicate function that checks if its input is an
+     mbra, in which case it returns ‘true’, else it returns ‘false’.
+     ‘mbrap’ only returns ‘true’ for the matrix representation of a bra.
 
-     (%i1) kill(a,b,k);
-     (%o1)                                done
-     (%i2) k:ket(a,b);
-     (%o2)                               |a, b>
-     (%i3) ketp(k);
-     (%o3)                                false
-     (%i4) k:ket([a,b]);
-                                          [ a ]
-     (%o4)                                [   ]
-                                          [ b ]
-     (%i5) ketp(k);
-     (%o5)                                true
-
- -- Function: brap (_vector_)
-     ‘brap’ is a predicate function that checks if its input is a bra,
-     in which case it returns ‘true’, else it returns ‘false’.  ‘brap’
-     only returns ‘true’ for the matrix representation of a bra.
-
-     (%i1) b:bra([a,b]);
+     (%i1) b:mbra([a,b]);
      (%o1)                              [ a  b ]
-     (%i2) brap(b);
+     (%i2) mbrap(b);
      (%o2)                                true
+
+   Two additional functions are provided to create kets and bras in the
+matrix representation.  These functions conveniently attempt to
+automatically ‘declare’ constants as complex.  For example, if a list
+entry is ‘a*sin(x)+b*cos(x)’ then only ‘a’ and ‘b’ will be ‘declare’-d
+complex and not ‘x’.
+
+ -- Function: autoket ([a_{1},a_{2},...])
+     ‘autoket’ takes a list [‘a_{1},a_{2},...’] and returns a ket with
+     the coefficients ‘a_{i}’ ‘declare’-d complex.  Simple expressions
+     such as ‘a*sin(x)+b*cos(x)’ are allowed and will ‘declare’ only the
+     coefficients as complex.
+
+     (%i1) autoket([a,b]);
+                                          [ a ]
+     (%o1)                                [   ]
+                                          [ b ]
+     (%i2) facts();
+     (%o2)  [kind(hbar, real), hbar > 0, kind(a, complex), kind(b, complex)]
+     (%i1) autoket([a*sin(x),b*sin(x)]);
+                                      [ a sin(x) ]
+     (%o1)                            [          ]
+                                      [ b sin(x) ]
+     (%i2) facts();
+     (%o2)  [kind(hbar, real), hbar > 0, kind(a, complex), kind(b, complex)]
+
+ -- Function: autobra ([a_{1},a_{2},...])
+     ‘autobra’ takes a list [‘a_{1},a_{2},...’] and returns a bra with
+     the coefficients ‘a_{i}’ ‘declare’-d complex.  Simple expressions
+     such as ‘a*sin(x)+b*cos(x)’ are allowed and will ‘declare’ only the
+     coefficients as complex.
+
+     (%i1) autobra([a,b]);
+     (%o1)                              [ a  b ]
+     (%i2) facts();
+     (%o2)  [kind(hbar, real), hbar > 0, kind(a, complex), kind(b, complex)]
+     (%i1) autobra([a*sin(x),b]);
+     (%o1)                           [ a sin(x)  b ]
+     (%i2) facts();
+     (%o2)  [kind(hbar, real), hbar > 0, kind(a, complex), kind(b, complex)]
 
  -- Function: dagger (_vector_)
      ‘dagger’ is the quantum mechanical _dagger_ function and returns
-     the ‘conjugate’ ‘transpose’ of its input.
+     the ‘conjugate’ ‘transpose’ of its input.  Arbitrary constants must
+     be ‘declare’-d complex for dagger to produce the conjugate.
 
-     (%i1) dagger(bra([%i,2]));
+     (%i1) dagger(mbra([%i,2]));
                                         [ - %i ]
      (%o1)                              [      ]
                                         [  2   ]
@@ -147,8 +275,10 @@ enter the arguments as a list.  See the following examples.
 
      (%i1) declare([a,b,c],complex);
      (%o1)                                done
-     (%i2) braket(ket([a,b,c]),ket([a,b,c]));
+     (%i2) braket(mket([a,b,c]),mket([a,b,c]));
      (%o2)          c conjugate(c) + b conjugate(b) + a conjugate(a)
+     (%i3) braket(ket([a1,b1,c1]),ket([a2,b2,c2]));
+     (%o3)      kron_delta(a1, a2) kron_delta(b1, b2) kron_delta(c1, c2)
 
  -- Function: norm (psi)
      Given a ‘ket’ or ‘bra’ ‘psi’, ‘norm’ returns the square root of the
@@ -157,10 +287,8 @@ enter the arguments as a list.  See the following examples.
 
      (%i1) declare([a,b,c],complex);
      (%o1)                                done
-     (%i2) norm(ket([a,b,c]));
+     (%i2) norm(mket([a,b,c]));
      (%o2)       sqrt(c conjugate(c) + b conjugate(b) + a conjugate(a))
-     (%i3) norm(ket(a,b,c));
-     (%o3)                           norm(|a, b, c>)
 
  -- Function: magsqr (c)
      ‘magsqr’ returns ‘conjugate(c)*c’, the magnitude squared of a
@@ -168,7 +296,7 @@ enter the arguments as a list.  See the following examples.
 
      (%i1) declare([a,b,c,d],complex);
      (%o1)                                done
-     (%i2) A:braket(ket([a,b]),ket([c,d]));
+     (%i2) A:braket(mket([a,b]),mket([c,d]));
      (%o2)                   conjugate(b) d + conjugate(a) c
      (%i3) P:magsqr(A);
      (%o3) (conjugate(b) d + conjugate(a) c) (b conjugate(d) + a conjugate(c))
@@ -180,12 +308,12 @@ General kets and bras are, as discussed, created without using a list
 when giving the arguments.  The following examples show how general kets
 and bras can be manipulated.
 
-     (%i1) ket(a)+ket(b);
-     (%o1)                              |b> + |a>
-     (%i2) braket(bra(a),ket(b));
+     (%i1) ket([a])+ket([b]);
+     (%o1)                            |[b]> + |[a]>
+     (%i2) braket(bra([a]),ket([b]));
      (%o2)                          kron_delta(a, b)
-     (%i3) braket(bra(a)+bra(c),ket(b));
-     (%o3)                       braket(<c| + <a|, |b>)
+     (%i3) braket(bra([a])+bra([c]),ket([b]));
+     (%o3)                 kron_delta(b, c) + kron_delta(a, b)
 
 1.2.2 Spin-1/2 state kets and associated operators
 --------------------------------------------------
@@ -247,7 +375,7 @@ ket is constructed and the <x>-basis ket is computed.
 
      (%i1) declare([a,b],complex);
      (%o1)                                done
-     (%i2) psi:ket([a,b]);
+     (%i2) psi:mket([a,b]);
                                           [ a ]
      (%o2)                                [   ]
                                           [ b ]
@@ -371,92 +499,95 @@ ket is constructed and the <x>-basis ket is computed.
 To create kets and bras in the <|j,m>> representation you can use the
 following functions.
 
- -- Function: jm_ket (j,m)
-     ‘jm_ket’ creates the ket <|j,m>> for total spin <j> and
+ -- Function: jmket (j,m)
+     ‘jmket’ creates the ket <|j,m>> for total spin <j> and
      <z>-component <m>.
 
- -- Function: jm_bra (j,m)
-     ‘jm_bra’ creates the bra <<j,m|> for total spin <j> and
+ -- Function: jmbra (j,m)
+     ‘jmbra’ creates the bra <<j,m|> for total spin <j> and
      <z>-component <m>.
 
-     (%i1) jm_bra(3/2,1/2);
+     (%i1) jmbra(3/2,1/2);
                                              3  1
-     (%o1)                            jm_bra(-, -)
+     (%o1)                             jmbra(-, -)
                                              2  2
-     (%i2) jm_bra([3/2,1/2]);
+     (%i2) jmbra([3/2,1/2]);
                                             [ 3  1 ]
      (%o2)                          [jmbra, [ -  - ]]
                                             [ 2  2 ]
 
- -- Function: jm_ketp (jmket)
-     ‘jm_ketp’ checks to see that the ket has the 'jmket' marker.
+ -- Function: jmketp (jmket)
+     ‘jmketp’ checks to see that the ket has the 'jmket' marker.
 
-     (%i1) jm_ketp(jm_ket(j,m));
+     (%i1) jmketp(jmket(j,m));
      (%o1)                                false
-     (%i2) jm_ketp(jm_ket([j,m]));
+     (%i2) jmketp(jmket([j,m]));
      (%o2)                                true
 
- -- Function: jm_brap (jmbra)
-     ‘jm_brap’ checks to see that the bra has the 'jmbra' marker.
+ -- Function: jmbrap (jmbra)
+     ‘jmbrap’ checks to see that the bra has the 'jmbra' marker.
 
- -- Function: jm_check (j,m)
-     ‘jm_check’ checks to see that <m> is one of {-j, ..., +j}.
+ -- Function: jmcheck (j,m)
+     ‘jmcheck’ checks to see that <m> is one of {-j, ..., +j}.
 
-     (%i1) jm_check(3/2,1/2);
+     (%i1) jmcheck(3/2,1/2);
      (%o1)                                true
 
- -- Function: jm_braket (_jmbra,jmket_)
-     ‘jm_braket’ takes the inner product of the jm-kets.
+ -- Function: jmbraket (_jmbra,jmket_)
+     ‘jmbraket’ takes the inner product of the jm-kets.
 
-     (%i1) K:jm_ket(j1,m1);
-     (%o1)                           jm_ket(j1, m1)
-     (%i2) B:jm_bra(j2,m2);
-     (%o2)                           jm_bra(j2, m2)
-     (%i3) jm_braket(B,K);
+     (%i1) K:jmket(j1,m1);
+     (%o1)                            jmket(j1, m1)
+     (%i2) B:jmbra(j2,m2);
+     (%o2)                            jmbra(j2, m2)
+     (%i3) jmbraket(B,K);
      (%o3)                kron_delta(j1, j2) kron_delta(m1, m2)
-     (%i4) B:jm_bra(j1,m1);
-     (%o4)                           jm_bra(j1, m1)
-     (%i5) jm_braket(B,K);
+     (%i4) B:jmbra(j1,m1);
+     (%o4)                            jmbra(j1, m1)
+     (%i5) jmbraket(B,K);
      (%o5)                                  1
-     (%i6) K:jm_ket([j1,m1]);
-     (%o6)                         [jmket, [ j1  m1 ]]
-     (%i7) B:jm_bra([j2,m2]);
-     (%o7)                         [jmbra, [ j2  m2 ]]
-     (%i8) jm_braket(B,K);
-     (%o8)                                  0
-     (%i9) jm_braket(jm_bra(j1,m1)+jm_bra(j3,m3),jm_ket(j2,m2));
-     (%o9) kron_delta(j2, j3) kron_delta(m2, m3)
-                                             + kron_delta(j1, j2) kron_delta(m1, m2)
+     (%i6) K:jmket([3/2,1/2]);
+                                            [ 3  1 ]
+     (%o6)                          [jmket, [ -  - ]]
+                                            [ 2  2 ]
+     (%i7) B:jmbra([3/2,1/2]);
+                                            [ 3  1 ]
+     (%o7)                          [jmbra, [ -  - ]]
+                                            [ 2  2 ]
+     (%i8) jmbraket(B,K);
+     (%o8)                                  1
+     (%i9) jmbraket(jmbra(j1,m1),jmket(j2,m2));
+     (%o9)                kron_delta(j1, j2) kron_delta(m1, m2)
 
  -- Function: JP (_jmket_)
-     ‘JP’ is the ‘J_{+}’ operator.  It takes a ‘jmket’ ‘jm_ket(j,m)’ and
-     returns ‘sqrt(j*(j+1)-m*(m+1))*hbar*jm_ket(j,m+1)’.
+     ‘JP’ is the ‘J_{+}’ operator.  It takes a ‘jmket’ ‘jmket(j,m)’ and
+     returns ‘sqrt(j*(j+1)-m*(m+1))*hbar*jmket(j,m+1)’.
 
  -- Function: JM (_jmket_)
-     ‘JM’ is the ‘J_{-}’ operator.  It takes a ‘jmket’ ‘jm_ket(j,m)’ and
-     returns ‘sqrt(j*(j+1)-m*(m-1))*hbar*jm_ket(j,m-1)’.
+     ‘JM’ is the ‘J_{-}’ operator.  It takes a ‘jmket’ ‘jmket(j,m)’ and
+     returns ‘sqrt(j*(j+1)-m*(m-1))*hbar*jmket(j,m-1)’.
 
  -- Function: Jsqr (_jmket_)
-     ‘Jsqr’ is the ‘J^{2}’ operator.  It takes a ‘jmket’ ‘jm_ket(j,m)’
-     and returns ‘(j*(j+1)*hbar^{2}*jm_ket(j,m)’.
+     ‘Jsqr’ is the ‘J^{2}’ operator.  It takes a ‘jmket’ ‘jmket(j,m)’
+     and returns ‘(j*(j+1)*hbar^{2}*jmket(j,m)’.
 
  -- Function: Jz (_jmket_)
-     ‘Jz’ is the ‘J_{z}’ operator.  It takes a ‘jmket’ ‘jm_ket(j,m)’ and
-     returns ‘m*hbar*jm_ket(j,m)’.
+     ‘Jz’ is the ‘J_{z}’ operator.  It takes a ‘jmket’ ‘jmket(j,m)’ and
+     returns ‘m*hbar*jmket(j,m)’.
 
    These functions are illustrated below.
 
-     (%i1) k:jm_ket([j,m]);
+     (%i1) k:jmket([j,m]);
      (%o1)                          [jmket, [ j  m ]]
      (%i2) JP(k);
-     (%o2)          hbar jm_ket(j, m + 1) sqrt(j (j + 1) - m (m + 1))
+     (%o2)          hbar jmket(j, m + 1) sqrt(j (j + 1) - m (m + 1))
      (%i3) JM(k);
-     (%o3)          hbar jm_ket(j, m - 1) sqrt(j (j + 1) - (m - 1) m)
+     (%o3)          hbar jmket(j, m - 1) sqrt(j (j + 1) - (m - 1) m)
      (%i4) Jsqr(k);
-                                  2
-     (%o4)                    hbar  j (j + 1) jm_ket(j, m)
+                                   2
+     (%o4)                     hbar  j (j + 1) jmket(j, m)
      (%i5) Jz(k);
-     (%o5)                         hbar jm_ket(j, m) m
+     (%o5)                         hbar jmket(j, m) m
 
 1.2.7 Angular momentum and ladder operators
 -------------------------------------------
@@ -529,155 +660,194 @@ following functions.
 1.5 Tensor products
 ===================
 
-Tensor products are represented as lists in Maxima.  The ket tensor
-product ‘|z+,z+>’ is represented as ‘[tpket,zp,zp]’, and the bra tensor
-product ‘<a,b|’ is represented as ‘[tpbra,a,b]’ for kets ‘a’ and ‘b’.
-The list labels ‘tpket’ and ‘tpbra’ ensure calculations are performed
-with the correct kind of objects.
+Tensor products are represented as lists in the ‘qm’ package.  The ket
+tensor product ‘|z+,z+>’ could be represented as ‘ket([u,d])’, for
+example, and the bra tensor product ‘<a,b|’ is represented as
+‘bra([a,b])’ for states ‘a’ and ‘b’.  For a tensor product where the
+identity is one of the elements of the product, substitute the string
+‘Id’ in the ket or bra at the desired location.  See the examples below
+for the use of the identity in tensor products.
 
- -- Function: ketprod (k_{1}, k_{2}, ...)
-     ‘ketprod’ produces a tensor product of kets ‘k_{i}’.  All of the
-     elements must pass the ‘ketp’ predicate test to be accepted.
+ -- Function: tpket ([k_{1}, k_{2}, ...])
+     ‘tpket’ produces a tensor product of kets ‘k_{i}’.  All of the
+     elements must pass the ‘ketp’ predicate test to be accepted.  If a
+     list is not used for the input kets, the tpket will be an abstract
+     tensor product ket.
 
- -- Function: braprod (b_{1}, b_{2}, ...)
-     ‘braprod’ produces a tensor product of bras ‘b_{i}’.  All of the
-     elements must pass the ‘brap’ predicate test to be accepted.
+ -- Function: tpbra ([b_{1}, b_{2}, ...])
+     ‘tpbra’ produces a tensor product of bras ‘b_{i}’.  All of the
+     elements must pass the ‘brap’ predicate test to be accepted.  If a
+     list is not used for the input bras, the tpbra will be an abstract
+     tensor product bra.
 
- -- Function: braketprod (B,K)
-     ‘braketprod’ takes the inner product of the tensor products ‘B’ and
+ -- Function: tpketp (tpket)
+     ‘tpketp’ checks to see that the ket has the 'tpket' marker.  Only
+     the matrix representation will pass this test.
+
+ -- Function: tpbrap (tpbra)
+     ‘tpbrap’ checks to see that the bra has the 'tpbra' marker.  Only
+     the matrix representation will pass this test.
+
+ -- Function: tpbraket (B,K)
+     ‘tpbraket’ takes the inner product of the tensor products ‘B’ and
      ‘K’.  The tensor products must be of the same length (number of
      kets must equal the number of bras).
 
-   Examples below show how to create tensor products and take the
-bracket of tensor products.
+   Examples below show how to create concrete (matrix representation)
+tensor products and take the bracket of tensor products.
 
-     (%i1) ketprod(zp,zm);
-                                          [ 1 ]  [ 0 ]
-     (%o1)                        ketprod([   ], [   ])
-                                          [ 0 ]  [ 1 ]
-     (%i2) ketprod('zp,'zm);
-     (%o2)                           ketprod(zp, zm)
      (%i1) kill(a,b,c,d);
      (%o1)                                done
      (%i2) declare([a,b,c,d],complex);
      (%o2)                                done
-     (%i3) braprod(bra([a,b]),bra([c,d]));
-     (%o3)                     braprod([ a  b ], [ c  d ])
-     (%i4) braprod(dagger(zp),bra([c,d]));
-     (%o4)                     braprod([ 1  0 ], [ c  d ])
-     (%i1) K:ketprod(zp,zm);
+     (%i3) tpbra([mbra([a,b]),mbra([c,d])]);
+     (%o3)                    [tpbra, [[ a  b ], [ c  d ]]]
+     (%i4) tpbra([dagger(zp),mbra([c,d])]);
+     (%o4)                    [tpbra, [[ 1  0 ], [ c  d ]]]
+     (%i1) K:tpket([zp,zm]);
                                           [ 1 ]  [ 0 ]
-     (%o1)                        ketprod([   ], [   ])
+     (%o1)                       [tpket, [[   ], [   ]]]
                                           [ 0 ]  [ 1 ]
      (%i2) zpb:dagger(zp);
      (%o2)                              [ 1  0 ]
      (%i3) zmb:dagger(zm);
      (%o3)                              [ 0  1 ]
-     (%i4) B:braprod(zpb,zmb);
-     (%o4)                     braprod([ 1  0 ], [ 0  1 ])
-     (%i5) braketprod(K,B);
+     (%i4) B:tpbra([zpb,zmb]);
+     (%o4)                    [tpbra, [[ 1  0 ], [ 0  1 ]]]
+     (%i5) tpbraket(K,B);
      (%o5)                                false
-     (%i6) braketprod(B,K);
-     (%o6)                                false
+     (%i6) tpbraket(B,K);
+     (%o6)                                  1
+
+   Examples below show how to create abstract tensor products that
+contain the identity element ‘Id’ and how to take the bracket of these
+tensor products.
+
+     (%i1) K:ket([a1,b1]);
+     (%o1)                             |[a1, b1]>
+     (%i2) B:bra([a2,b2]);
+     (%o2)                             <[a2, b2]|
+     (%i3) braket(B,K);
+     (%o3)                kron_delta(a1, a2) kron_delta(b1, b2)
+     (%i1) bra([a1,Id,c1]) . ket([a2,b2,c2]);
+     (%o1)         |[-, b2, -]> kron_delta(a1, a2) kron_delta(c1, c2)
+     (%i2) bra([a1,b1,c1]) . ket([Id,b2,c2]);
+     (%o2)         <[a1, -, -]| kron_delta(b1, b2) kron_delta(c1, c2)
 
 Appendix A Function and Variable index
 **************************************
 
 * Menu:
 
+* autobra:                               Functions and Variables for qm.
+                                                              (line 243)
+* autoket:                               Functions and Variables for qm.
+                                                              (line 224)
 * bra:                                   Functions and Variables for qm.
-                                                              (line  86)
+                                                              (line 146)
 * braket:                                Functions and Variables for qm.
-                                                              (line 140)
-* braketprod:                            Functions and Variables for qm.
-                                                              (line 545)
+                                                              (line 268)
 * brap:                                  Functions and Variables for qm.
-                                                              (line 121)
-* braprod:                               Functions and Variables for qm.
-                                                              (line 541)
+                                                              (line 158)
 * commutator:                            Functions and Variables for qm.
-                                                              (line 292)
+                                                              (line 420)
 * dagger:                                Functions and Variables for qm.
-                                                              (line 131)
+                                                              (line 258)
 * expect:                                Functions and Variables for qm.
-                                                              (line 351)
+                                                              (line 479)
 * JM:                                    Functions and Variables for qm.
-                                                              (line 434)
-* jm_bra:                                Functions and Variables for qm.
-                                                              (line 377)
-* jm_braket:                             Functions and Variables for qm.
-                                                              (line 407)
-* jm_brap:                               Functions and Variables for qm.
-                                                              (line 398)
-* jm_check:                              Functions and Variables for qm.
-                                                              (line 401)
-* jm_ket:                                Functions and Variables for qm.
-                                                              (line 373)
-* jm_ketp:                               Functions and Variables for qm.
-                                                              (line 390)
+                                                              (line 565)
+* jmbra:                                 Functions and Variables for qm.
+                                                              (line 505)
+* jmbraket:                              Functions and Variables for qm.
+                                                              (line 535)
+* jmbrap:                                Functions and Variables for qm.
+                                                              (line 526)
+* jmcheck:                               Functions and Variables for qm.
+                                                              (line 529)
+* jmket:                                 Functions and Variables for qm.
+                                                              (line 501)
+* jmketp:                                Functions and Variables for qm.
+                                                              (line 518)
 * JP:                                    Functions and Variables for qm.
-                                                              (line 430)
+                                                              (line 561)
 * Jsqr:                                  Functions and Variables for qm.
-                                                              (line 438)
+                                                              (line 569)
 * Jz:                                    Functions and Variables for qm.
-                                                              (line 442)
+                                                              (line 573)
 * ket:                                   Functions and Variables for qm.
-                                                              (line  65)
+                                                              (line 130)
 * ketp:                                  Functions and Variables for qm.
-                                                              (line 103)
-* ketprod:                               Functions and Variables for qm.
-                                                              (line 537)
+                                                              (line 142)
 * magsqr:                                Functions and Variables for qm.
-                                                              (line 164)
+                                                              (line 292)
+* mbra:                                  Functions and Variables for qm.
+                                                              (line 194)
+* mbrap:                                 Functions and Variables for qm.
+                                                              (line 208)
+* mket:                                  Functions and Variables for qm.
+                                                              (line 162)
+* mketp:                                 Functions and Variables for qm.
+                                                              (line 178)
 * norm:                                  Functions and Variables for qm.
-                                                              (line 152)
+                                                              (line 282)
 * qm_variance:                           Functions and Variables for qm.
-                                                              (line 358)
+                                                              (line 486)
 * RX:                                    Functions and Variables for qm.
-                                                              (line 487)
+                                                              (line 618)
 * RY:                                    Functions and Variables for qm.
-                                                              (line 491)
+                                                              (line 622)
 * RZ:                                    Functions and Variables for qm.
-                                                              (line 495)
+                                                              (line 626)
 * sigmax:                                Functions and Variables for qm.
-                                                              (line 261)
+                                                              (line 389)
 * sigmay:                                Functions and Variables for qm.
-                                                              (line 264)
+                                                              (line 392)
 * sigmaz:                                Functions and Variables for qm.
-                                                              (line 267)
+                                                              (line 395)
 * SM:                                    Functions and Variables for qm.
-                                                              (line 466)
+                                                              (line 597)
 * SP:                                    Functions and Variables for qm.
-                                                              (line 463)
+                                                              (line 594)
 * Sx:                                    Functions and Variables for qm.
-                                                              (line 270)
+                                                              (line 398)
 * SX:                                    Functions and Variables for qm.
-                                                              (line 310)
+                                                              (line 438)
 * Sy:                                    Functions and Variables for qm.
-                                                              (line 273)
+                                                              (line 401)
 * SY:                                    Functions and Variables for qm.
-                                                              (line 315)
+                                                              (line 443)
 * Sz:                                    Functions and Variables for qm.
-                                                              (line 276)
+                                                              (line 404)
 * SZ:                                    Functions and Variables for qm.
-                                                              (line 320)
+                                                              (line 448)
+* tpbra:                                 Functions and Variables for qm.
+                                                              (line 676)
+* tpbraket:                              Functions and Variables for qm.
+                                                              (line 690)
+* tpbrap:                                Functions and Variables for qm.
+                                                              (line 686)
+* tpket:                                 Functions and Variables for qm.
+                                                              (line 670)
+* tpketp:                                Functions and Variables for qm.
+                                                              (line 682)
 * UU:                                    Functions and Variables for qm.
-                                                              (line 514)
+                                                              (line 645)
 * xm:                                    Functions and Variables for qm.
-                                                              (line 206)
+                                                              (line 334)
 * xp:                                    Functions and Variables for qm.
-                                                              (line 203)
+                                                              (line 331)
 * ym:                                    Functions and Variables for qm.
-                                                              (line 212)
+                                                              (line 340)
 * yp:                                    Functions and Variables for qm.
-                                                              (line 209)
+                                                              (line 337)
 * zm:                                    Functions and Variables for qm.
-                                                              (line 200)
+                                                              (line 328)
 * zp:                                    Functions and Variables for qm.
-                                                              (line 197)
+                                                              (line 325)
 
 * Menu:
 
 * hbar:                                  Functions and Variables for qm.
-                                                               (line 60)
+                                                              (line 125)
 

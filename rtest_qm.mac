@@ -1,105 +1,158 @@
-(load(qm),0);
-0$
-
-ket(a,b)+ket(c,d);
-ket(c,d)+ket(a,b) $
+(display2d:false,load(qm),0);
+0 $
 
 ket([a,b])+ket([c,d]);
+ket([c,d])+ket([a,b]) $
+
+mket([a,b])+mket([c,d]);
 matrix([c+a],[d+b]) $
 
-ketprod('zp,'zm)+ketprod('zm,'zp);
-ketprod(zp,zm)+ketprod(zm,zp) $
+bell:(1/sqrt(2))*(ket([u,d])-ket([d,u]));
+(ket([u,d])-ket([d,u]))/sqrt(2) $
 
-ketprod([zp,zm]);
+braket(bra([a1,b1]),ket([a2,b2]));
+kron_delta(a1,a2)*kron_delta(b1,b2) $
+
+tpket([zp,zm]);
 [tpket,[matrix([1],[0]),matrix([0],[1])]] $
 
-kill(a);
+declare([a,b],complex);
 done $
 
-ket(a);
-ket(a) $
+psi:a*ket([1])+b*ket([2]);
+ket([2])*b+ket([1])*a $
+
+psidag:dagger(psi);
+bra([2])*conjugate(b)+bra([1])*conjugate(a) $
+
+psidag.psi;
+b*conjugate(b)+a*conjugate(a) $
+
+declare([c1,c2],complex,r,real);
+done $
+
+k:mket([c1,c2,r]);
+matrix([c1],[c2],[r]) $
+
+b:dagger(k);
+matrix([conjugate(c1),conjugate(c2),r]) $
+
+b.k;
+r^2+c2*conjugate(c2)+c1*conjugate(c1) $
+
+k:ket([u,d]);
+ket([u,d]) $
+
+b:bra([u,d]);
+bra([u,d]) $
+
+b.k;
+1 $
+
+k:ket([u,d]);
+ket([u,d]) $
+
+b:bra([u,d]);
+bra([u,d]) $
+
+b.k;
+1 $
 
 declare([c1,c2],complex);
 done $
 
-ket([c1,c2]);
+mket([c1,c2]);
 matrix([c1],[c2]) $
 
 facts();
-[ħ > 0,kind(c1,complex),kind(c2,complex)] $
+[kind(hbar,real),hbar > 0,kind(a,complex),kind(b,complex), $
+
+k:ket([a,b]);
+ket([a,bra([u,d])]) $
+
+mketp(k);
+false $
+
+k:mket([a,b]);
+matrix([a],[bra([u,d])]) $
+
+mketp(k);
+true $
 
 kill(c1,c2);
 done $
 
-bra(c1,c2);
-bra(c1,c2) $
-
-bra([c1,c2]);
+mbra([c1,c2]);
 matrix([c1,c2]) $
 
 facts();
-[ħ > 0] $
+[kind(hbar,real),hbar > 0,kind(a,complex),kind(b,complex),kind(r,real)] $
 
-kill(a,b,k);
-done $
+b:mbra([a,b]);
+matrix([a,bra([u,d])]) $
 
-k:ket(a,b);
-ket(a,b) $
-
-ketp(k);
-false $
-
-k:ket([a,b]);
-matrix([a],[b]) $
-
-ketp(k);
+mbrap(b);
 true $
 
-b:bra([a,b]);
-matrix([a,b]) $
+autoket([a,b]);
+matrix([a],[matrix([a,bra([u,d])])]) $
 
-brap(b);
-true $
+facts();
+[kind(hbar,real),hbar > 0,kind(a,complex),kind(b,complex),kind(r,real)] $
 
-(remvalue(b),0);
-0$
+autoket([a*sin(x),b*sin(x)]);
+matrix([a*sin(x)],[matrix([a*sin(x),bra([u,d])*sin(x)])]) $
 
-dagger(bra([%i,2]));
+facts();
+[kind(hbar,real),hbar > 0,kind(a,complex),kind(b,complex),kind(r,real)] $
+
+autobra([a,b]);
+matrix([a,matrix([a,bra([u,d])])]) $
+
+facts();
+[kind(hbar,real),hbar > 0,kind(a,complex),kind(b,complex),kind(r,real)] $
+
+autobra([a*sin(x),b]);
+matrix([a*sin(x),matrix([a,bra([u,d])])]) $
+
+facts();
+[kind(hbar,real),hbar > 0,kind(a,complex),kind(b,complex),kind(r,real)] $
+
+dagger(mbra([%i,2]));
 matrix([-%i],[2]) $
 
 declare([a,b,c],complex);
 done $
 
-braket(ket([a,b,c]),ket([a,b,c]));
-c*conjugate(c)+b*conjugate(b)+a*conjugate(a)$
+braket(mket([a,b,c]),mket([a,b,c]));
+braket(matrix([a],[matrix([a,bra([u,d])])],[c]), $
+
+braket(ket([a1,b1,c1]),ket([a2,b2,c2]));
+kron_delta(a1,a2)*kron_delta(b1,b2)*kron_delta(c1,c2) $
 
 declare([a,b,c],complex);
 done $
 
-norm(ket([a,b,c]));
-sqrt(c*conjugate(c)+b*conjugate(b)+a*conjugate(a))$
-
-norm(ket(a,b,c));
-norm(ket(a,b,c))$
+norm(mket([a,b,c]));
+norm(matrix([a],[matrix([a,bra([u,d])])],[c])) $
 
 declare([a,b,c,d],complex);
 done $
 
-A:braket(ket([a,b]),ket([c,d]));
-conjugate(b)*d+conjugate(a)*c$
+A:braket(mket([a,b]),mket([c,d]));
+braket(matrix([a],[matrix([a,bra([u,d])])]),matrix([c],[d])) $
 
 P:magsqr(A);
-(conjugate(b)*d+conjugate(a)*c)*(b*conjugate(d)+a*conjugate(c))$
+braket(matrix([a],[matrix([a,bra([u,d])])]),matrix([c],[d])) $
 
-ket(a)+ket(b);
-ket(a)+ket(b)$
+ket([a])+ket([b]);
+ket([matrix([a,bra([u,d])])])+ket([a]) $
 
+braket(bra([a]),ket([b]));
+0 $
 
-braket(bra(a),ket(b));
-kron_delta(a,b) $
-
-braket(bra(a)+bra(c),ket(b));
-kron_delta(b,c)+kron_delta(a,b)$
+braket(bra([a])+bra([c]),ket([b]));
+0 $
 
 zp;
 matrix([1],[0]) $
@@ -119,95 +172,95 @@ braket(xp,zp);
 declare([a,b],complex);
 done $
 
-psi:ket([a,b]);
-matrix([a],[b])$
+psi:mket([a,b]);
+matrix([a],[matrix([a,bra([u,d])])]) $
 
 psi_x:'xp*braket(xp,psi)+'xm*braket(xm,psi);
-(b/sqrt(2)+a/sqrt(2))*xp+(a/sqrt(2)-b/sqrt(2))*xm$
+braket(matrix([1/sqrt(2)],[1/sqrt(2)]),matrix([a], $
 
 sigmay;
 matrix([0,-%i],[%i,0]) $
 
 Sy;
-matrix([0,-((%i*ħ)/2)],[(%i*ħ)/2,0]) $
+matrix([0,-((%i*hbar)/2)],[(%i*hbar)/2,0]) $
 
 commutator(Sx,Sy);
-matrix([(%i*ħ^2)/2,0],[0,-((%i*ħ^2)/2)]) $
+matrix([(%i*hbar^2)/2,0],[0,-((%i*hbar^2)/2)]) $
 
 SY(1/2);
-matrix([0,-((%i*ħ)/2)],[(%i*ħ)/2,0]) $
+matrix([0,-((%i*hbar)/2)],[(%i*hbar)/2,0]) $
 
 SX(1);
-matrix([0,sqrt(2)*ħ,0],[0,0,sqrt(2)*ħ],[0,0,0])$
+matrix([0,hbar/sqrt(2),0],[hbar/sqrt(2),0,hbar/sqrt(2)],[0, $
 
 ev(expect(Sy,xp+ym),ratsimp);
--ħ $
+-hbar $
 
 ev(qm_variance(Sy,xp+ym),ratsimp);
-(%i*ħ)/2 $
+(%i*hbar)/2 $
 
-jm_bra(3/2,1/2);
-jm_bra(3/2,1/2) $
+jmbra(3/2,1/2);
+jmbra(3/2,1/2) $
 
-jm_bra([3/2,1/2]);
+jmbra([3/2,1/2]);
 [jmbra,matrix([3/2,1/2])] $
 
-jm_ketp(jm_ket(j,m));
+jmketp(jmket(j,m));
 false $
 
-jm_ketp(jm_ket([j,m]));
+jmketp(jmket([j,m]));
 true $
 
-jm_check(3/2,1/2);
+jmcheck(3/2,1/2);
 true $
 
-K:jm_ket(j1,m1);
-jm_ket(j1,m1) $
+K:jmket(j1,m1);
+jmket(j1,m1) $
 
-B:jm_bra(j2,m2);
-jm_bra(j2,m2) $
+B:jmbra(j2,m2);
+jmbra(j2,m2) $
 
-jm_braket(B,K);
+jmbraket(B,K);
 kron_delta(j1,j2)*kron_delta(m1,m2) $
 
-B:jm_bra(j1,m1);
-jm_bra(j1,m1) $
+B:jmbra(j1,m1);
+jmbra(j1,m1) $
 
-jm_braket(B,K);
+jmbraket(B,K);
 1 $
 
-K:jm_ket([j1,m1]);
-[jmket,matrix([j1,m1])] $
+K:jmket([3/2,1/2]);
+[jmket,matrix([3/2,1/2])] $
 
-B:jm_bra([j2,m2]);
-[jmbra,matrix([j2,m2])] $
+B:jmbra([3/2,1/2]);
+[jmbra,matrix([3/2,1/2])] $
 
-jm_braket(B,K);
-0 $
+jmbraket(B,K);
+1 $
 
-jm_braket(jm_bra(j1,m1)+jm_bra(j3,m3),jm_ket(j2,m2));
-kron_delta(j2,j3)*kron_delta(m2,m3)+kron_delta(j1,j2)*kron_delta(m1,m2) $
+jmbraket(jmbra(j1,m1),jmket(j2,m2));
+kron_delta(j1,j2)*kron_delta(m1,m2) $
 
-k:jm_ket([j,m]);
+k:jmket([j,m]);
 [jmket,matrix([j,m])] $
 
 JP(k);
-ħ*'jm_ket(j,m+1)*sqrt(j*(j+1)-m*(m+1)) $
+hbar*'jmket(j,m+1)*sqrt(j*(j+1)-m*(m+1)) $
 
 JM(k);
-ħ*'jm_ket(j,m-1)*sqrt(j*(j+1)-(m-1)*m) $
+hbar*'jmket(j,m-1)*sqrt(j*(j+1)-(m-1)*m) $
 
 Jsqr(k);
-ħ^2*j*(j+1)*'jm_ket(j,m) $
+hbar^2*j*(j+1)*'jmket(j,m) $
 
 Jz(k);
-ħ*'jm_ket(j,m)*m $
+hbar*'jmket(j,m)*m $
 
 SP(1);
-matrix([0,sqrt(2)*ħ,0],[0,0,sqrt(2)*ħ],[0,0,0]) $
+matrix([0,sqrt(2)*hbar,0],[0,0,sqrt(2)*hbar],[0,0,0]) $
 
 SM(1);
-matrix([0,0,0],[sqrt(2)*ħ,0,0],[0,sqrt(2)*ħ,0]) $
+matrix([0,0,0],[sqrt(2)*hbar,0,0],[0,sqrt(2)*hbar,0]) $
 
 RZ(1/2,t);
 matrix([%e^-((%i*t)/2),0],[0,%e^((%i*t)/2)]) $
@@ -215,26 +268,20 @@ matrix([%e^-((%i*t)/2),0],[0,%e^((%i*t)/2)]) $
 UU(w*Sy,t);
 matrix([cos((t*w)/2),-sin((t*w)/2)],[sin((t*w)/2),cos((t*w)/2)]) $
 
-ketprod(zp,zm);
-ketprod(matrix([1],[0]),matrix([0],[1])) $
-
-ketprod('zp,'zm);
-ketprod(zp,zm) $
-
 kill(a,b,c,d);
 done $
 
 declare([a,b,c,d],complex);
 done $
 
-braprod(bra([a,b]),bra([c,d]));
-braprod(matrix([a,b]),matrix([c,d])) $
+tpbra([mbra([a,b]),mbra([c,d])]);
+[tpbra,[matrix([a,b]),matrix([c,d])]] $
 
-braprod(dagger(zp),bra([c,d]));
-braprod(matrix([1,0]),matrix([c,d])) $
+tpbra([dagger(zp),mbra([c,d])]);
+[tpbra,[matrix([1,0]),matrix([c,d])]] $
 
-K:ketprod(zp,zm);
-ketprod(matrix([1],[0]),matrix([0],[1])) $
+K:tpket([zp,zm]);
+[tpket,[matrix([1],[0]),matrix([0],[1])]] $
 
 zpb:dagger(zp);
 matrix([1,0]) $
@@ -242,12 +289,27 @@ matrix([1,0]) $
 zmb:dagger(zm);
 matrix([0,1]) $
 
-B:braprod(zpb,zmb);
-braprod(matrix([1,0]),matrix([0,1])) $
+B:tpbra([zpb,zmb]);
+[tpbra,[matrix([1,0]),matrix([0,1])]] $
 
-braketprod(K,B);
+tpbraket(K,B);
 false $
 
-braketprod(B,K);
-false $
+tpbraket(B,K);
+1 $
+
+K:ket([a1,b1]);
+ket([a1,b1]) $
+
+B:bra([a2,b2]);
+bra([a2,b2]) $
+
+braket(B,K);
+kron_delta(a1,a2)*kron_delta(b1,b2) $
+
+bra([a1,Id,c1]).ket([a2,b2,c2]);
+ket(["-",b2,"-"])*kron_delta(a1,a2)*kron_delta(c1,c2) $
+
+bra([a1,b1,c1]).ket([Id,b2,c2]);
+bra([a1,"-","-"])*kron_delta(b1,b2)*kron_delta(c1,c2) $
 

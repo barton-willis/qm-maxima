@@ -63,59 +63,131 @@ Next: <a href="#Functions-and-Variables-for-qm" accesskey="n" rel="next">Functio
 </div>
 <h3 class="section" id="Introduction-to-package-qm-1"><span>1.1 Introduction to package qm<a class="copiable-link" href="#Introduction-to-package-qm-1"> &para;</a></span></h3>
 
+<p>The <code class="code">qm</code> package was written by Eric Majzoub, University of
+Missouri. Email: majzoube-at-umsystem.edu
+</p>
+<p>The package is loaded with: <code class="code">load(qm);</code>
+</p>
 <p>The <code class="code">qm</code> package provides functions and standard definitions to
 solve quantum mechanics problems in a finite dimensional Hilbert
 space. For example, one can calculate the outcome of Stern-Gerlach
-experiments using the built-in definition of the Sx, Sy, and Sz
-operators for arbitrary spin, e.g. <code class="code">s={1/2, 1, 3/2,
-&hellip;}</code>. For spin-1/2 the standard basis states in the <var class="var">x</var>,
-<var class="var">y</var>, and <var class="var">z</var>-basis are available as <code class="code">{xp,xm}</code>,
-<code class="code">{yp,ym}</code>, and <code class="code">{zp,zm}</code>. One can create general ket
-vectors with arbitrary but finite dimension and perform standard
-computations such as expectation value, variance, etc. The angular
-momentum <var class="var">|j,m&gt;</var> representation of kets is also available. It is
-also possible to create tensor product states for multiparticle systems
-and to perform calculations on those systems.
+experiments using built-in definitions of the Sx, Sy, and Sz operators
+for arbitrary spin, e.g. <code class="code">s={1/2, 1, 3/2, &hellip;}</code>. For spin-1/2
+the standard basis states in the <code class="code">x</code>, <code class="code">y</code>, and <code class="code">z</code>-basis
+are available as <code class="code">{xp,xm}</code>, <code class="code">{yp,ym}</code>, and
+<code class="code">{zp,zm}</code>, respectively. One can create general ket vectors with
+arbitrary but finite dimension and perform standard computations such as
+expectation value, variance, etc. The angular momentum <var class="var">|j,m&gt;</var>
+representation of kets is also available. Tensor product states for
+multiparticle systems can be created to perform calculations on those
+systems.
 </p>
-<p>Kets and bras are represented by column and row vectors, respectively.
-For spin-1/2 particles, for example, the bra vector
+<p>Let us consider a simple example involving spin-1/2 particles.
+A bra vector in the <code class="code">z</code>-basis may be written as 
 </p>
-<p><code class="code">&lt;psi| = a &lt;z+| + b &lt;z-|</code>
+<br>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="code">&lt;psi| = a &lt;z+| + b &lt;z-|</code>.
+<br>
 </p>
-<p>is represented by the row vector <code class="code">[a b]</code>, where the basis vectors
-are
+<p>The bra will be represented in Maxima by the row vector <code class="code">[a b]</code>,
+where the basis vectors are
 </p>
-<p><code class="code">&lt;z+| = [1 0]</code>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="code">&lt;z+| = [1 0]</code>
 </p>
 <p>and
 </p>
-<p><code class="code">&lt;z-| = [0 1]</code>.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="code">&lt;z-| = [0 1]</code>.
 </p>
-<p>Generally, if one wishes to do purely symbolic calculations, then input
-of basic kets, (j,m)-kets, and so forth should be done without lists. If
-one wishes to do numerical computations using the kets then enter the
-arguments as a list. See the following examples.
+<p>There are two types of kets and bras available in this package, the
+first type is given by a <em class="emph">matrix representation</em>, as in the above
+example. <code class="code">mket</code>s are column vectors and <code class="code">mbra</code>s are row
+vectors, and their components are entered as Maxima <em class="emph">lists</em> in the
+<code class="code">mbra</code> and <code class="code">mket</code> functions. The second type of bra or ket is
+<em class="emph">abstract</em>; there is no matrix representation. Abstract bras and
+kets are entered using the <code class="code">bra</code> and <code class="code">ket</code> functions using
+Maxima lists for the elements. These general kets are displayed in Dirac
+notation. For example, a tensor product of two ket vectors <code class="code">|a&gt;</code>
+and <code class="code">|b&gt;</code> is input as <code class="code">ket([a,b])</code> and displayed as
+</p>
+<br>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="code">|[a,b]&gt;</code> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(general ket)
+<br>
+</p>
+<p>Note that abstract kets and bras are <em class="emph">assumed to be
+orthonormal</em>. These general bras and kets may be used to build
+arbitrarily large tensor product states. Tensor product states in the
+matrix representation are also available through the <code class="code">tpket</code> and
+<code class="code">tpbra</code> commands.
+</p>
+<p>The following examples illustrate some of the basic capabilities of the
+<code class="code">qm</code> package. Here both abstract, and concrete (matrix
+representation) kets are shown.
 </p>
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) ket(a,b)+ket(c,d);
-(%o1)                           |c, d&gt; + |a, b&gt;
-(%i2) ket([a,b])+ket([c,d]);
+<div class="group"><pre class="example-preformatted">(%i1) ket([a,b])+ket([c,d]);
+(%o1)                         |[c, d]&gt; + |[a, b]&gt;
+(%i2) mket([a,b])+mket([c,d]);
                                    [ c + a ]
 (%o2)                              [       ]
                                    [ d + b ]
-</pre></div><div class="group"><pre class="example-preformatted">(%i1) ketprod('zp,'zm)+ketprod('zm,'zp);
-(%o1)                  ketprod(zp, zm) + ketprod(zm, zp)
-(%i2) ketprod([zp,zm]);
+(%i3) bell:(1/sqrt(2))*(ket([u,d])-ket([d,u]));
+                              |[u, d]&gt; - |[d, u]&gt;
+(%o3)                         -------------------
+                                    sqrt(2)
+</pre></div></div>
+
+<p>Note that <code class="code">ket([a,b])</code> is treated as tensor product of states
+<code class="code">a</code> and <code class="code">b</code> as shown below.
+</p>
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) braket(bra([a1,b1]),ket([a2,b2]));
+(%o1)                kron_delta(a1, a2) kron_delta(b1, b2)
+</pre></div></div>
+
+<p>Next, tensor products of the spin-1/2 basis states <code class="code">{zp,zm}</code> are
+shown in the matrix representation.
+</p>
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) tpket([zp,zm]);
                                      [ 1 ]  [ 0 ]
-(%o2)                       [tpket, [[   ], [   ]]]
+(%o1)                       [tpket, [[   ], [   ]]]
                                      [ 0 ]  [ 1 ]
 </pre></div></div>
 
-
-<p>The <code class="code">qm</code> package was written by Eric Majzoub, University of
-Missouri.  (Email: majzoube-at-umsystem.edu) The package is loaded with:
-<code class="code">load(qm);</code>
+<p>Constants that multiply kets and bras must be declared complex by
+the user in order for the dagger function to properly conjugate
+such constants. The example below illustrates this behavior.
 </p>
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) declare([a,b],complex);
+(%o1)                                done
+(%i2) psi:a*ket([1])+b*ket([2]);
+(%o2)                          |[2]&gt; b + |[1]&gt; a
+(%i3) psidag:dagger(psi);
+(%o3)               &lt;[2]| conjugate(b) + &lt;[1]| conjugate(a)
+(%i4) psidag . psi;
+(%o4)                   b conjugate(b) + a conjugate(a)
+</pre></div></div>
+
+<p>The following shows how to declare a ket with both real and
+complex components in the matrix representation.
+</p>
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) declare([c1,c2],complex,r,real);
+(%o1)                                done
+(%i2) k:mket([c1,c2,r]);
+                                    [ c1 ]
+                                    [    ]
+(%o2)                               [ c2 ]
+                                    [    ]
+                                    [ r  ]
+(%i3) b:dagger(k);
+(%o3)                 [ conjugate(c1)  conjugate(c2)  r ]
+(%i4) b . k;
+                    2
+(%o4)              r  + c2 conjugate(c2) + c1 conjugate(c1)
+</pre></div></div>
+
 <hr>
 </div>
 <div class="section-level-extent" id="Functions-and-Variables-for-qm">
@@ -133,95 +205,178 @@ zero.
 </p></dd></dl>
 
 <a class="anchor" id="ket"></a><dl class="first-deffn">
-<dt class="deffn" id="index-ket"><span class="category-def">Function: </span><span><strong class="def-name">ket</strong> <var class="def-var-arguments">([<code class="code">c<sub class="sub">1</sub></code>,<code class="code">c<sub class="sub">2</sub></code>,&hellip;])</var><a class="copiable-link" href="#index-ket"> &para;</a></span></dt>
-<dd><p><code class="code">ket</code> creates a <em class="emph">column</em> vector of arbitrary finite
-dimension. The entries <code class="code">c<sub class="sub">i</sub></code> can be any Maxima expression.
-The user must <code class="code">declare</code> any relevant constants to be complex.
-For a matrix representation the elements must be entered as a list
-in <code class="code">[&hellip;]</code> square brackets. If no list is entered the ket
-is represented as a general ket, <code class="code">ket(a)</code> will return <code class="code">|a&gt;</code>.
+<dt class="deffn" id="index-ket"><span class="category-def">Function: </span><span><strong class="def-name">ket</strong> <var class="def-var-arguments">([<code class="code">k<sub class="sub">1</sub></code>,<code class="code">k<sub class="sub">2</sub></code>,&hellip;])</var><a class="copiable-link" href="#index-ket"> &para;</a></span></dt>
+<dd><p><code class="code">ket</code> creates a general state ket, or tensor product, with symbols
+<code class="code">k<sub class="sub">i</sub></code> representing the states. The state kets <code class="code">k<sub class="sub">i</sub></code>
+are assumed to be orthonormal.
 </p></dd></dl>
 
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) kill(a);
-(%o1)                                done
-(%i2) ket(a);
-(%o2)                                 |a&gt;
-(%i3) declare([c1,c2],complex);
-(%o3)                                done
-(%i4) ket([c1,c2]);
-                                    [ c1 ]
-(%o4)                               [    ]
-                                    [ c2 ]
-(%i5) facts();
-(%o5) [kind(hbar, real), hbar &gt; 0, kind(c1, complex), kind(c2, complex)]
+<div class="group"><pre class="example-preformatted">(%i1) k:ket([u,d]);
+(%o1)                              |[u, d]&gt;
+(%i2) b:bra([u,d]);
+(%o2)                              &lt;[u, d]|
+(%i3) b . k;
+(%o3)                                  1
 </pre></div></div>
 
+<a class="anchor" id="ketp"></a><dl class="first-deffn">
+<dt class="deffn" id="index-ketp"><span class="category-def">Function: </span><span><strong class="def-name">ketp</strong> <var class="def-var-arguments">(abstract ket)</var><a class="copiable-link" href="#index-ketp"> &para;</a></span></dt>
+<dd><p><code class="code">ketp</code> is a predicate function for abstract kets. It returns
+<code class="code">true</code> for abstract <code class="code">ket</code>s and <code class="code">false</code> for anything else.
+</p></dd></dl>
+
 <a class="anchor" id="bra"></a><dl class="first-deffn">
-<dt class="deffn" id="index-bra"><span class="category-def">Function: </span><span><strong class="def-name">bra</strong> <var class="def-var-arguments">([<code class="code">c<sub class="sub">1</sub></code>,<code class="code">c<sub class="sub">2</sub></code>,&hellip;])</var><a class="copiable-link" href="#index-bra"> &para;</a></span></dt>
-<dd><p><code class="code">bra</code> creates a <em class="emph">row</em> vector of arbitrary finite
+<dt class="deffn" id="index-bra"><span class="category-def">Function: </span><span><strong class="def-name">bra</strong> <var class="def-var-arguments">([<code class="code">b<sub class="sub">1</sub></code>,<code class="code">b<sub class="sub">2</sub></code>,&hellip;])</var><a class="copiable-link" href="#index-bra"> &para;</a></span></dt>
+<dd><p><code class="code">bra</code> creates a general state bra, or tensor product, with symbols
+<code class="code">b<sub class="sub">i</sub></code> representing the states. The state bras <code class="code">b<sub class="sub">i</sub></code>
+are assumed to be orthonormal.
+</p></dd></dl>
+
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) k:ket([u,d]);
+(%o1)                              |[u, d]&gt;
+(%i2) b:bra([u,d]);
+(%o2)                              &lt;[u, d]|
+(%i3) b . k;
+(%o3)                                  1
+</pre></div></div>
+
+<a class="anchor" id="brap"></a><dl class="first-deffn">
+<dt class="deffn" id="index-brap"><span class="category-def">Function: </span><span><strong class="def-name">brap</strong> <var class="def-var-arguments">(abstract bra)</var><a class="copiable-link" href="#index-brap"> &para;</a></span></dt>
+<dd><p><code class="code">brap</code> is a predicate function for abstract bras. It returns
+<code class="code">true</code> for abstract <code class="code">bra</code>s and <code class="code">false</code> for anything else.
+</p></dd></dl>
+
+<a class="anchor" id="mket"></a><dl class="first-deffn">
+<dt class="deffn" id="index-mket"><span class="category-def">Function: </span><span><strong class="def-name">mket</strong> <var class="def-var-arguments">([<code class="code">c<sub class="sub">1</sub></code>,<code class="code">c<sub class="sub">2</sub></code>,&hellip;])</var><a class="copiable-link" href="#index-mket"> &para;</a></span></dt>
+<dd><p><code class="code">mket</code> creates a <em class="emph">column</em> vector of arbitrary finite
+dimension. The entries <code class="code">c<sub class="sub">i</sub></code> can be any Maxima expression.
+The user must <code class="code">declare</code> any relevant constants to be complex. For a
+matrix representation the elements must be entered as a list in
+<code class="code">[&hellip;]</code> square brackets.
+</p></dd></dl>
+
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) declare([c1,c2],complex);
+(%o1)                                done
+(%i2) mket([c1,c2]);
+                                    [ c1 ]
+(%o2)                               [    ]
+                                    [ c2 ]
+(%i3) facts();
+(%o3) [kind(hbar, real), hbar &gt; 0, kind(c1, complex), kind(c2, complex)]
+</pre></div></div>
+
+<a class="anchor" id="mketp"></a><dl class="first-deffn">
+<dt class="deffn" id="index-mketp"><span class="category-def">Function: </span><span><strong class="def-name">mketp</strong> <var class="def-var-arguments">(<em class="emph">vector</em>)</var><a class="copiable-link" href="#index-mketp"> &para;</a></span></dt>
+<dd><p><code class="code">mketp</code> is a predicate function that checks if its input is an mket,
+in which case it returns <code class="code">true</code>, else it returns <code class="code">false</code>.
+<code class="code">mketp</code> only returns <code class="code">true</code> for the matrix representation of a ket.
+</p></dd></dl>
+
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) k:ket([a,b]);
+(%o1)                              |[a, b]&gt;
+(%i2) mketp(k);
+(%o2)                                false
+(%i3) k:mket([a,b]);
+                                     [ a ]
+(%o3)                                [   ]
+                                     [ b ]
+(%i4) mketp(k);
+(%o4)                                true
+</pre></div></div>
+
+<a class="anchor" id="mbra"></a><dl class="first-deffn">
+<dt class="deffn" id="index-mbra"><span class="category-def">Function: </span><span><strong class="def-name">mbra</strong> <var class="def-var-arguments">([<code class="code">c<sub class="sub">1</sub></code>,<code class="code">c<sub class="sub">2</sub></code>,&hellip;])</var><a class="copiable-link" href="#index-mbra"> &para;</a></span></dt>
+<dd><p><code class="code">mbra</code> creates a <em class="emph">row</em> vector of arbitrary finite
 dimension. The entries <code class="code">c<sub class="sub">i</sub></code> can be any Maxima expression.
 The user must <code class="code">declare</code> any relevant constants to be complex.
 For a matrix representation the elements must be entered as a list
-in <code class="code">[&hellip;]</code> square bracbras. If no list is entered the bra
-is represented as a general bra, <code class="code">bra(a)</code> will return <code class="code">&lt;a|</code>.
+in <code class="code">[&hellip;]</code> square brackets.
 </p></dd></dl>
 
 <div class="example">
 <div class="group"><pre class="example-preformatted">(%i1) kill(c1,c2);
 (%o1)                                done
-(%i2) bra(c1,c2);
-(%o2)                              &lt;c1, c2|
-(%i3) bra([c1,c2]);
-(%o3)                             [ c1  c2 ]
-(%i4) facts();
-(%o4)                    [kind(hbar, real), hbar &gt; 0]
+(%i2) mbra([c1,c2]);
+(%o2)                             [ c1  c2 ]
+(%i3) facts();
+(%o3)                    [kind(hbar, real), hbar &gt; 0]
 </pre></div></div>
 
-<a class="anchor" id="ketp"></a><dl class="first-deffn">
-<dt class="deffn" id="index-ketp"><span class="category-def">Function: </span><span><strong class="def-name">ketp</strong> <var class="def-var-arguments">(<em class="emph">vector</em>)</var><a class="copiable-link" href="#index-ketp"> &para;</a></span></dt>
-<dd><p><code class="code">ketp</code> is a predicate function that checks if its input is a ket,
+<a class="anchor" id="mbrap"></a><dl class="first-deffn">
+<dt class="deffn" id="index-mbrap"><span class="category-def">Function: </span><span><strong class="def-name">mbrap</strong> <var class="def-var-arguments">(<em class="emph">vector</em>)</var><a class="copiable-link" href="#index-mbrap"> &para;</a></span></dt>
+<dd><p><code class="code">mbrap</code> is a predicate function that checks if its input is an mbra,
 in which case it returns <code class="code">true</code>, else it returns <code class="code">false</code>.
-<code class="code">ketp</code> only returns <code class="code">true</code> for the matrix representation of a ket.
+<code class="code">mbrap</code> only returns <code class="code">true</code> for the matrix representation of a bra.
 </p></dd></dl>
 
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) kill(a,b,k);
-(%o1)                                done
-(%i2) k:ket(a,b);
-(%o2)                               |a, b&gt;
-(%i3) ketp(k);
-(%o3)                                false
-(%i4) k:ket([a,b]);
-                                     [ a ]
-(%o4)                                [   ]
-                                     [ b ]
-(%i5) ketp(k);
-(%o5)                                true
-</pre></div></div>
-
-<a class="anchor" id="brap"></a><dl class="first-deffn">
-<dt class="deffn" id="index-brap"><span class="category-def">Function: </span><span><strong class="def-name">brap</strong> <var class="def-var-arguments">(<em class="emph">vector</em>)</var><a class="copiable-link" href="#index-brap"> &para;</a></span></dt>
-<dd><p><code class="code">brap</code> is a predicate function that checks if its input is a bra,
-in which case it returns <code class="code">true</code>, else it returns <code class="code">false</code>.
-<code class="code">brap</code> only returns <code class="code">true</code> for the matrix representation of a bra.
-</p></dd></dl>
-
-<div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) b:bra([a,b]);
+<div class="group"><pre class="example-preformatted">(%i1) b:mbra([a,b]);
 (%o1)                              [ a  b ]
-(%i2) brap(b);
+(%i2) mbrap(b);
 (%o2)                                true
+</pre></div></div>
+
+<p>Two additional functions are provided to create kets and bras in the
+matrix representation. These functions conveniently attempt to
+automatically <code class="code">declare</code> constants as complex. For example, if a
+list entry is <code class="code">a*sin(x)+b*cos(x)</code> then only <code class="code">a</code> and <code class="code">b</code>
+will be <code class="code">declare</code>-d complex and not <code class="code">x</code>.
+</p>
+<a class="anchor" id="autoket"></a><dl class="first-deffn">
+<dt class="deffn" id="index-autoket"><span class="category-def">Function: </span><span><strong class="def-name">autoket</strong> <var class="def-var-arguments">([<code class="code">a<sub class="sub">1</sub>,a<sub class="sub">2</sub>,&hellip;</code>])</var><a class="copiable-link" href="#index-autoket"> &para;</a></span></dt>
+<dd><p><code class="code">autoket</code> takes a list [<code class="code">a<sub class="sub">1</sub>,a<sub class="sub">2</sub>,&hellip;</code>] and
+returns a ket with the coefficients <code class="code">a<sub class="sub">i</sub></code> <code class="code">declare</code>-d
+complex. Simple expressions such as <code class="code">a*sin(x)+b*cos(x)</code> are allowed
+and will <code class="code">declare</code> only the coefficients as complex.
+</p></dd></dl>
+
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) autoket([a,b]);
+                                     [ a ]
+(%o1)                                [   ]
+                                     [ b ]
+(%i2) facts();
+(%o2)  [kind(hbar, real), hbar &gt; 0, kind(a, complex), kind(b, complex)]
+</pre></div><div class="group"><pre class="example-preformatted">(%i1) autoket([a*sin(x),b*sin(x)]);
+                                 [ a sin(x) ]
+(%o1)                            [          ]
+                                 [ b sin(x) ]
+(%i2) facts();
+(%o2)  [kind(hbar, real), hbar &gt; 0, kind(a, complex), kind(b, complex)]
+</pre></div></div>
+
+<a class="anchor" id="autobra"></a><dl class="first-deffn">
+<dt class="deffn" id="index-autobra"><span class="category-def">Function: </span><span><strong class="def-name">autobra</strong> <var class="def-var-arguments">([<code class="code">a<sub class="sub">1</sub>,a<sub class="sub">2</sub>,&hellip;</code>])</var><a class="copiable-link" href="#index-autobra"> &para;</a></span></dt>
+<dd><p><code class="code">autobra</code> takes a list [<code class="code">a<sub class="sub">1</sub>,a<sub class="sub">2</sub>,&hellip;</code>] and
+returns a bra with the coefficients <code class="code">a<sub class="sub">i</sub></code> <code class="code">declare</code>-d
+complex. Simple expressions such as <code class="code">a*sin(x)+b*cos(x)</code> are allowed
+and will <code class="code">declare</code> only the coefficients as complex.
+</p></dd></dl>
+
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) autobra([a,b]);
+(%o1)                              [ a  b ]
+(%i2) facts();
+(%o2)  [kind(hbar, real), hbar &gt; 0, kind(a, complex), kind(b, complex)]
+</pre></div><div class="group"><pre class="example-preformatted">(%i1) autobra([a*sin(x),b]);
+(%o1)                           [ a sin(x)  b ]
+(%i2) facts();
+(%o2)  [kind(hbar, real), hbar &gt; 0, kind(a, complex), kind(b, complex)]
 </pre></div></div>
 
 <a class="anchor" id="dagger"></a><dl class="first-deffn">
 <dt class="deffn" id="index-dagger"><span class="category-def">Function: </span><span><strong class="def-name">dagger</strong> <var class="def-var-arguments">(<em class="emph">vector</em>)</var><a class="copiable-link" href="#index-dagger"> &para;</a></span></dt>
 <dd><p><code class="code">dagger</code> is the quantum mechanical <em class="emph">dagger</em> function and returns
-the <code class="code">conjugate</code> <code class="code">transpose</code> of its input.
+the <code class="code">conjugate</code> <code class="code">transpose</code> of its input. Arbitrary constants
+must be <code class="code">declare</code>-d complex for dagger to produce the conjugate.
 </p></dd></dl>
 
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) dagger(bra([%i,2]));
+<div class="group"><pre class="example-preformatted">(%i1) dagger(mbra([%i,2]));
                                    [ - %i ]
 (%o1)                              [      ]
                                    [  2   ]
@@ -239,8 +394,10 @@ product is taken. The vector <code class="code">phi</code> must always be a <cod
 <div class="example">
 <div class="group"><pre class="example-preformatted">(%i1) declare([a,b,c],complex);
 (%o1)                                done
-(%i2) braket(ket([a,b,c]),ket([a,b,c]));
+(%i2) braket(mket([a,b,c]),mket([a,b,c]));
 (%o2)          c conjugate(c) + b conjugate(b) + a conjugate(a)
+(%i3) braket(ket([a1,b1,c1]),ket([a2,b2,c2]));
+(%o3)      kron_delta(a1, a2) kron_delta(b1, b2) kron_delta(c1, c2)
 </pre></div></div>
 
 <a class="anchor" id="norm"></a><dl class="first-deffn">
@@ -254,10 +411,8 @@ function will return <code class="code">false</code>.
 <div class="example">
 <div class="group"><pre class="example-preformatted">(%i1) declare([a,b,c],complex);
 (%o1)                                done
-(%i2) norm(ket([a,b,c]));
+(%i2) norm(mket([a,b,c]));
 (%o2)       sqrt(c conjugate(c) + b conjugate(b) + a conjugate(a))
-(%i3) norm(ket(a,b,c));
-(%o3)                           norm(|a, b, c&gt;)
 </pre></div></div>
 
 <dl class="first-deffn">
@@ -269,7 +424,7 @@ squared of a complex number.
 <div class="example">
 <div class="group"><pre class="example-preformatted">(%i1) declare([a,b,c,d],complex);
 (%o1)                                done
-(%i2) A:braket(ket([a,b]),ket([c,d]));
+(%i2) A:braket(mket([a,b]),mket([c,d]));
 (%o2)                   conjugate(b) d + conjugate(a) c
 (%i3) P:magsqr(A);
 (%o3) (conjugate(b) d + conjugate(a) c) (b conjugate(d) + a conjugate(c))
@@ -292,12 +447,12 @@ when giving the arguments. The following examples show how general
 kets and bras can be manipulated.
 </p>
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) ket(a)+ket(b);
-(%o1)                              |b&gt; + |a&gt;
-(%i2) braket(bra(a),ket(b));
+<div class="group"><pre class="example-preformatted">(%i1) ket([a])+ket([b]);
+(%o1)                            |[b]&gt; + |[a]&gt;
+(%i2) braket(bra([a]),ket([b]));
 (%o2)                          kron_delta(a, b)
-(%i3) braket(bra(a)+bra(c),ket(b));
-(%o3)                       braket(&lt;c| + &lt;a|, |b&gt;)
+(%i3) braket(bra([a])+bra([c]),ket([b]));
+(%o3)                 kron_delta(b, c) + kron_delta(a, b)
 </pre></div></div>
 
 </div>
@@ -376,7 +531,7 @@ ket is constructed and the <var class="var">x</var>-basis ket is computed.
 <div class="example">
 <div class="group"><pre class="example-preformatted">(%i1) declare([a,b],complex);
 (%o1)                                done
-(%i2) psi:ket([a,b]);
+(%i2) psi:mket([a,b]);
                                      [ a ]
 (%o2)                                [   ]
                                      [ b ]
@@ -540,122 +695,125 @@ in state <code class="code">psi</code>, <code class="code">sqrt(&lt;psi|O<sup cl
 the following functions.
 </p>
 <dl class="first-deffn">
-<dt class="deffn" id="index-jm_005fket"><span class="category-def">Function: </span><span><strong class="def-name">jm_ket</strong> <var class="def-var-arguments">(<code class="code">j,m</code>)</var><a class="copiable-link" href="#index-jm_005fket"> &para;</a></span></dt>
-<dd><p><code class="code">jm_ket</code> creates the ket <var class="var">|j,m&gt;</var> for total spin <var class="var">j</var>
+<dt class="deffn" id="index-jmket"><span class="category-def">Function: </span><span><strong class="def-name">jmket</strong> <var class="def-var-arguments">(<code class="code">j,m</code>)</var><a class="copiable-link" href="#index-jmket"> &para;</a></span></dt>
+<dd><p><code class="code">jmket</code> creates the ket <var class="var">|j,m&gt;</var> for total spin <var class="var">j</var>
 and <var class="var">z</var>-component <var class="var">m</var>.
 </p></dd></dl>
 
 <dl class="first-deffn">
-<dt class="deffn" id="index-jm_005fbra"><span class="category-def">Function: </span><span><strong class="def-name">jm_bra</strong> <var class="def-var-arguments">(<code class="code">j,m</code>)</var><a class="copiable-link" href="#index-jm_005fbra"> &para;</a></span></dt>
-<dd><p><code class="code">jm_bra</code> creates the bra <var class="var">&lt;j,m|</var> for total spin <var class="var">j</var>
+<dt class="deffn" id="index-jmbra"><span class="category-def">Function: </span><span><strong class="def-name">jmbra</strong> <var class="def-var-arguments">(<code class="code">j,m</code>)</var><a class="copiable-link" href="#index-jmbra"> &para;</a></span></dt>
+<dd><p><code class="code">jmbra</code> creates the bra <var class="var">&lt;j,m|</var> for total spin <var class="var">j</var>
 and <var class="var">z</var>-component <var class="var">m</var>.
 </p></dd></dl>
 
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) jm_bra(3/2,1/2);
+<div class="group"><pre class="example-preformatted">(%i1) jmbra(3/2,1/2);
                                         3  1
-(%o1)                            jm_bra(-, -)
+(%o1)                             jmbra(-, -)
                                         2  2
-(%i2) jm_bra([3/2,1/2]);
+(%i2) jmbra([3/2,1/2]);
                                        [ 3  1 ]
 (%o2)                          [jmbra, [ -  - ]]
                                        [ 2  2 ]
 </pre></div></div>
 
 <dl class="first-deffn">
-<dt class="deffn" id="index-jm_005fketp"><span class="category-def">Function: </span><span><strong class="def-name">jm_ketp</strong> <var class="def-var-arguments">(jmket)</var><a class="copiable-link" href="#index-jm_005fketp"> &para;</a></span></dt>
-<dd><p><code class="code">jm_ketp</code> checks to see that the ket has the &rsquo;jmket&rsquo; marker.
+<dt class="deffn" id="index-jmketp"><span class="category-def">Function: </span><span><strong class="def-name">jmketp</strong> <var class="def-var-arguments">(jmket)</var><a class="copiable-link" href="#index-jmketp"> &para;</a></span></dt>
+<dd><p><code class="code">jmketp</code> checks to see that the ket has the &rsquo;jmket&rsquo; marker.
 </p></dd></dl>
 
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) jm_ketp(jm_ket(j,m));
+<div class="group"><pre class="example-preformatted">(%i1) jmketp(jmket(j,m));
 (%o1)                                false
-(%i2) jm_ketp(jm_ket([j,m]));
+(%i2) jmketp(jmket([j,m]));
 (%o2)                                true
 </pre></div></div>
 
 
 <dl class="first-deffn">
-<dt class="deffn" id="index-jm_005fbrap"><span class="category-def">Function: </span><span><strong class="def-name">jm_brap</strong> <var class="def-var-arguments">(jmbra)</var><a class="copiable-link" href="#index-jm_005fbrap"> &para;</a></span></dt>
-<dd><p><code class="code">jm_brap</code> checks to see that the bra has the &rsquo;jmbra&rsquo; marker.
+<dt class="deffn" id="index-jmbrap"><span class="category-def">Function: </span><span><strong class="def-name">jmbrap</strong> <var class="def-var-arguments">(jmbra)</var><a class="copiable-link" href="#index-jmbrap"> &para;</a></span></dt>
+<dd><p><code class="code">jmbrap</code> checks to see that the bra has the &rsquo;jmbra&rsquo; marker.
 </p></dd></dl>
 
 <dl class="first-deffn">
-<dt class="deffn" id="index-jm_005fcheck"><span class="category-def">Function: </span><span><strong class="def-name">jm_check</strong> <var class="def-var-arguments">(<code class="code">j,m</code>)</var><a class="copiable-link" href="#index-jm_005fcheck"> &para;</a></span></dt>
-<dd><p><code class="code">jm_check</code> checks to see that <var class="var">m</var> is one of {-j, &hellip;, +j}.
+<dt class="deffn" id="index-jmcheck"><span class="category-def">Function: </span><span><strong class="def-name">jmcheck</strong> <var class="def-var-arguments">(<code class="code">j,m</code>)</var><a class="copiable-link" href="#index-jmcheck"> &para;</a></span></dt>
+<dd><p><code class="code">jmcheck</code> checks to see that <var class="var">m</var> is one of {-j, &hellip;, +j}.
 </p></dd></dl>
 
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) jm_check(3/2,1/2);
+<div class="group"><pre class="example-preformatted">(%i1) jmcheck(3/2,1/2);
 (%o1)                                true
 </pre></div></div>
 
 
 <dl class="first-deffn">
-<dt class="deffn" id="index-jm_005fbraket"><span class="category-def">Function: </span><span><strong class="def-name">jm_braket</strong> <var class="def-var-arguments">(<em class="emph">jmbra,jmket</em>)</var><a class="copiable-link" href="#index-jm_005fbraket"> &para;</a></span></dt>
-<dd><p><code class="code">jm_braket</code> takes the inner product of the jm-kets.
+<dt class="deffn" id="index-jmbraket"><span class="category-def">Function: </span><span><strong class="def-name">jmbraket</strong> <var class="def-var-arguments">(<em class="emph">jmbra,jmket</em>)</var><a class="copiable-link" href="#index-jmbraket"> &para;</a></span></dt>
+<dd><p><code class="code">jmbraket</code> takes the inner product of the jm-kets.
 </p></dd></dl>
 
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) K:jm_ket(j1,m1);
-(%o1)                           jm_ket(j1, m1)
-(%i2) B:jm_bra(j2,m2);
-(%o2)                           jm_bra(j2, m2)
-(%i3) jm_braket(B,K);
+<div class="group"><pre class="example-preformatted">(%i1) K:jmket(j1,m1);
+(%o1)                            jmket(j1, m1)
+(%i2) B:jmbra(j2,m2);
+(%o2)                            jmbra(j2, m2)
+(%i3) jmbraket(B,K);
 (%o3)                kron_delta(j1, j2) kron_delta(m1, m2)
-(%i4) B:jm_bra(j1,m1);
-(%o4)                           jm_bra(j1, m1)
-(%i5) jm_braket(B,K);
+(%i4) B:jmbra(j1,m1);
+(%o4)                            jmbra(j1, m1)
+(%i5) jmbraket(B,K);
 (%o5)                                  1
-(%i6) K:jm_ket([j1,m1]);
-(%o6)                         [jmket, [ j1  m1 ]]
-(%i7) B:jm_bra([j2,m2]);
-(%o7)                         [jmbra, [ j2  m2 ]]
-(%i8) jm_braket(B,K);
-(%o8)                                  0
-(%i9) jm_braket(jm_bra(j1,m1)+jm_bra(j3,m3),jm_ket(j2,m2));
-(%o9) kron_delta(j2, j3) kron_delta(m2, m3)
-                                        + kron_delta(j1, j2) kron_delta(m1, m2)
+(%i6) K:jmket([3/2,1/2]);
+                                       [ 3  1 ]
+(%o6)                          [jmket, [ -  - ]]
+                                       [ 2  2 ]
+(%i7) B:jmbra([3/2,1/2]);
+                                       [ 3  1 ]
+(%o7)                          [jmbra, [ -  - ]]
+                                       [ 2  2 ]
+(%i8) jmbraket(B,K);
+(%o8)                                  1
+(%i9) jmbraket(jmbra(j1,m1),jmket(j2,m2));
+(%o9)                kron_delta(j1, j2) kron_delta(m1, m2)
 </pre></div></div>
 
 <dl class="first-deffn">
 <dt class="deffn" id="index-JP"><span class="category-def">Function: </span><span><strong class="def-name">JP</strong> <var class="def-var-arguments">(<em class="emph">jmket</em>)</var><a class="copiable-link" href="#index-JP"> &para;</a></span></dt>
 <dd><p><code class="code">JP</code> is the <code class="code">J<sub class="sub">+</sub></code> operator. It takes a <code class="code">jmket</code>
-<code class="code">jm_ket(j,m)</code> and returns <code class="code">sqrt(j*(j+1)-m*(m+1))*hbar*jm_ket(j,m+1)</code>.
+<code class="code">jmket(j,m)</code> and returns <code class="code">sqrt(j*(j+1)-m*(m+1))*hbar*jmket(j,m+1)</code>.
 </p></dd></dl>
 
 <dl class="first-deffn">
 <dt class="deffn" id="index-JM"><span class="category-def">Function: </span><span><strong class="def-name">JM</strong> <var class="def-var-arguments">(<em class="emph">jmket</em>)</var><a class="copiable-link" href="#index-JM"> &para;</a></span></dt>
 <dd><p><code class="code">JM</code> is the <code class="code">J<sub class="sub">-</sub></code> operator. It takes a <code class="code">jmket</code>
-<code class="code">jm_ket(j,m)</code> and returns <code class="code">sqrt(j*(j+1)-m*(m-1))*hbar*jm_ket(j,m-1)</code>.
+<code class="code">jmket(j,m)</code> and returns <code class="code">sqrt(j*(j+1)-m*(m-1))*hbar*jmket(j,m-1)</code>.
 </p></dd></dl>
 
 <dl class="first-deffn">
 <dt class="deffn" id="index-Jsqr"><span class="category-def">Function: </span><span><strong class="def-name">Jsqr</strong> <var class="def-var-arguments">(<em class="emph">jmket</em>)</var><a class="copiable-link" href="#index-Jsqr"> &para;</a></span></dt>
 <dd><p><code class="code">Jsqr</code> is the <code class="code">J<sup class="sup">2</sup></code> operator. It takes a <code class="code">jmket</code>
-<code class="code">jm_ket(j,m)</code> and returns <code class="code">(j*(j+1)*hbar<sup class="sup">2</sup>*jm_ket(j,m)</code>.
+<code class="code">jmket(j,m)</code> and returns <code class="code">(j*(j+1)*hbar<sup class="sup">2</sup>*jmket(j,m)</code>.
 </p></dd></dl>
 
 <dl class="first-deffn">
 <dt class="deffn" id="index-Jz"><span class="category-def">Function: </span><span><strong class="def-name">Jz</strong> <var class="def-var-arguments">(<em class="emph">jmket</em>)</var><a class="copiable-link" href="#index-Jz"> &para;</a></span></dt>
 <dd><p><code class="code">Jz</code> is the <code class="code">J<sub class="sub">z</sub></code> operator. It takes a <code class="code">jmket</code>
-<code class="code">jm_ket(j,m)</code> and returns <code class="code">m*hbar*jm_ket(j,m)</code>.
+<code class="code">jmket(j,m)</code> and returns <code class="code">m*hbar*jmket(j,m)</code>.
 </p></dd></dl>
 
 <p>These functions are illustrated below.
 </p>
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) k:jm_ket([j,m]);
+<div class="group"><pre class="example-preformatted">(%i1) k:jmket([j,m]);
 (%o1)                          [jmket, [ j  m ]]
 (%i2) JP(k);
-(%o2)          hbar jm_ket(j, m + 1) sqrt(j (j + 1) - m (m + 1))
+(%o2)          hbar jmket(j, m + 1) sqrt(j (j + 1) - m (m + 1))
 (%i3) JM(k);
-(%o3)          hbar jm_ket(j, m - 1) sqrt(j (j + 1) - (m - 1) m)
+(%o3)          hbar jmket(j, m - 1) sqrt(j (j + 1) - (m - 1) m)
 (%i4) Jsqr(k);
-                             2
-(%o4)                    hbar  j (j + 1) jm_ket(j, m)
+                              2
+(%o4)                     hbar  j (j + 1) jmket(j, m)
 (%i5) Jz(k);
-(%o5)                         hbar jm_ket(j, m) m
+(%o5)                         hbar jmket(j, m) m
 </pre></div></div>
 
 </div>
@@ -752,65 +910,93 @@ Proviso: assuming 64*t*w # 0
 <div class="section-level-extent" id="Tensor-products">
 <h3 class="section"><span>1.5 Tensor products<a class="copiable-link" href="#Tensor-products"> &para;</a></span></h3>
 
-<p>Tensor products are represented as lists in Maxima. The ket tensor
-product <code class="code">|z+,z+&gt;</code> is represented as <code class="code">[tpket,zp,zp]</code>, and the bra
-tensor product <code class="code">&lt;a,b|</code> is represented as <code class="code">[tpbra,a,b]</code> for kets
-<code class="code">a</code> and <code class="code">b</code>. The list labels <code class="code">tpket</code> and <code class="code">tpbra</code>
-ensure calculations are performed with the correct kind of objects.
+<p>Tensor products are represented as lists in the <code class="code">qm</code> package. The
+ket tensor product <code class="code">|z+,z+&gt;</code> could be represented as
+<code class="code">ket([u,d])</code>, for example, and the bra tensor product <code class="code">&lt;a,b|</code>
+is represented as <code class="code">bra([a,b])</code> for states <code class="code">a</code> and
+<code class="code">b</code>. For a tensor product where the identity is one of the elements
+of the product, substitute the string <code class="code">Id</code> in the ket or bra at the
+desired location. See the examples below for the use of the identity in
+tensor products.
 </p>
 <dl class="first-deffn">
-<dt class="deffn" id="index-ketprod"><span class="category-def">Function: </span><span><strong class="def-name">ketprod</strong> <var class="def-var-arguments">(<code class="code">k<sub class="sub">1</sub></code>, <code class="code">k<sub class="sub">2</sub></code>, &hellip;)</var><a class="copiable-link" href="#index-ketprod"> &para;</a></span></dt>
-<dd><p><code class="code">ketprod</code> produces a tensor product of kets <code class="code">k<sub class="sub">i</sub></code>. All
+<dt class="deffn" id="index-tpket"><span class="category-def">Function: </span><span><strong class="def-name">tpket</strong> <var class="def-var-arguments">([<code class="code">k<sub class="sub">1</sub></code>, <code class="code">k<sub class="sub">2</sub></code>, &hellip;])</var><a class="copiable-link" href="#index-tpket"> &para;</a></span></dt>
+<dd><p><code class="code">tpket</code> produces a tensor product of kets <code class="code">k<sub class="sub">i</sub></code>. All
 of the elements must pass the <code class="code">ketp</code> predicate test to be
-accepted.
+accepted. If a list is not used for the input kets, the tpket will
+be an abstract tensor product ket.
 </p></dd></dl>
 
 <dl class="first-deffn">
-<dt class="deffn" id="index-braprod"><span class="category-def">Function: </span><span><strong class="def-name">braprod</strong> <var class="def-var-arguments">(<code class="code">b<sub class="sub">1</sub></code>, <code class="code">b<sub class="sub">2</sub></code>, &hellip;)</var><a class="copiable-link" href="#index-braprod"> &para;</a></span></dt>
-<dd><p><code class="code">braprod</code> produces a tensor product of bras <code class="code">b<sub class="sub">i</sub></code>. All
+<dt class="deffn" id="index-tpbra"><span class="category-def">Function: </span><span><strong class="def-name">tpbra</strong> <var class="def-var-arguments">([<code class="code">b<sub class="sub">1</sub></code>, <code class="code">b<sub class="sub">2</sub></code>, &hellip;])</var><a class="copiable-link" href="#index-tpbra"> &para;</a></span></dt>
+<dd><p><code class="code">tpbra</code> produces a tensor product of bras <code class="code">b<sub class="sub">i</sub></code>. All
 of the elements must pass the <code class="code">brap</code> predicate test to be
-accepted.
+accepted. If a list is not used for the input bras, the tpbra will
+be an abstract tensor product bra.
 </p></dd></dl>
 
 <dl class="first-deffn">
-<dt class="deffn" id="index-braketprod"><span class="category-def">Function: </span><span><strong class="def-name">braketprod</strong> <var class="def-var-arguments">(<code class="code">B,K</code>)</var><a class="copiable-link" href="#index-braketprod"> &para;</a></span></dt>
-<dd><p><code class="code">braketprod</code> takes the inner product of the tensor products
+<dt class="deffn" id="index-tpketp"><span class="category-def">Function: </span><span><strong class="def-name">tpketp</strong> <var class="def-var-arguments">(tpket)</var><a class="copiable-link" href="#index-tpketp"> &para;</a></span></dt>
+<dd><p><code class="code">tpketp</code> checks to see that the ket has the &rsquo;tpket&rsquo; marker. Only
+the matrix representation will pass this test.
+</p></dd></dl>
+
+<dl class="first-deffn">
+<dt class="deffn" id="index-tpbrap"><span class="category-def">Function: </span><span><strong class="def-name">tpbrap</strong> <var class="def-var-arguments">(tpbra)</var><a class="copiable-link" href="#index-tpbrap"> &para;</a></span></dt>
+<dd><p><code class="code">tpbrap</code> checks to see that the bra has the &rsquo;tpbra&rsquo; marker. Only
+the matrix representation will pass this test.
+</p></dd></dl>
+
+<dl class="first-deffn">
+<dt class="deffn" id="index-tpbraket"><span class="category-def">Function: </span><span><strong class="def-name">tpbraket</strong> <var class="def-var-arguments">(<code class="code">B,K</code>)</var><a class="copiable-link" href="#index-tpbraket"> &para;</a></span></dt>
+<dd><p><code class="code">tpbraket</code> takes the inner product of the tensor products
 <code class="code">B</code> and <code class="code">K</code>. The tensor products must be of the same length
 (number of kets must equal the number of bras).
 </p></dd></dl>
 
-<p>Examples below show how to create tensor products and take
-the bracket of tensor products.
+<p>Examples below show how to create concrete (matrix representation)
+tensor products and take the bracket of tensor products.
 </p>
 <div class="example">
-<div class="group"><pre class="example-preformatted">(%i1) ketprod(zp,zm);
-                                     [ 1 ]  [ 0 ]
-(%o1)                        ketprod([   ], [   ])
-                                     [ 0 ]  [ 1 ]
-(%i2) ketprod('zp,'zm);
-(%o2)                           ketprod(zp, zm)
-</pre></div><div class="group"><pre class="example-preformatted">(%i1) kill(a,b,c,d);
+<div class="group"><pre class="example-preformatted">(%i1) kill(a,b,c,d);
 (%o1)                                done
 (%i2) declare([a,b,c,d],complex);
 (%o2)                                done
-(%i3) braprod(bra([a,b]),bra([c,d]));
-(%o3)                     braprod([ a  b ], [ c  d ])
-(%i4) braprod(dagger(zp),bra([c,d]));
-(%o4)                     braprod([ 1  0 ], [ c  d ])
-</pre></div><div class="group"><pre class="example-preformatted">(%i1) K:ketprod(zp,zm);
+(%i3) tpbra([mbra([a,b]),mbra([c,d])]);
+(%o3)                    [tpbra, [[ a  b ], [ c  d ]]]
+(%i4) tpbra([dagger(zp),mbra([c,d])]);
+(%o4)                    [tpbra, [[ 1  0 ], [ c  d ]]]
+</pre></div><div class="group"><pre class="example-preformatted">(%i1) K:tpket([zp,zm]);
                                      [ 1 ]  [ 0 ]
-(%o1)                        ketprod([   ], [   ])
+(%o1)                       [tpket, [[   ], [   ]]]
                                      [ 0 ]  [ 1 ]
 (%i2) zpb:dagger(zp);
 (%o2)                              [ 1  0 ]
 (%i3) zmb:dagger(zm);
 (%o3)                              [ 0  1 ]
-(%i4) B:braprod(zpb,zmb);
-(%o4)                     braprod([ 1  0 ], [ 0  1 ])
-(%i5) braketprod(K,B);
+(%i4) B:tpbra([zpb,zmb]);
+(%o4)                    [tpbra, [[ 1  0 ], [ 0  1 ]]]
+(%i5) tpbraket(K,B);
 (%o5)                                false
-(%i6) braketprod(B,K);
-(%o6)                                false
+(%i6) tpbraket(B,K);
+(%o6)                                  1
+</pre></div></div>
+
+<p>Examples below show how to create abstract tensor products that contain
+the identity element <code class="code">Id</code> and how to take the bracket of these
+tensor products.
+</p>
+<div class="example">
+<div class="group"><pre class="example-preformatted">(%i1) K:ket([a1,b1]);
+(%o1)                             |[a1, b1]&gt;
+(%i2) B:bra([a2,b2]);
+(%o2)                             &lt;[a2, b2]|
+(%i3) braket(B,K);
+(%o3)                kron_delta(a1, a2) kron_delta(b1, b2)
+</pre></div><div class="group"><pre class="example-preformatted">(%i1) bra([a1,Id,c1]) . ket([a2,b2,c2]);
+(%o1)         |[-, b2, -]&gt; kron_delta(a1, a2) kron_delta(c1, c2)
+(%i2) bra([a1,b1,c1]) . ket([Id,b2,c2]);
+(%o2)         &lt;[a1, -, -]| kron_delta(b1, b2) kron_delta(c1, c2)
 </pre></div></div>
 
 </div>
