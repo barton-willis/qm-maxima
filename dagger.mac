@@ -5,14 +5,20 @@
 texput('dagger, "^{\\dagger}", 'postfix);
 
 /* TeX support for bra & ket. A solution that preserves the expression 
-semantics is to define
+semantics is to place
 
    \DeclarePairedDelimiter\bra{\langle}{\rvert} 
    \DeclarePairedDelimiter\ket{\lvert}{\rangle} 
 
- See https://tex.stackexchange.com/questions/214728/braket-notation-in-latex */
+in the preamble of a document. But after that, I'm not sure how to o a
+texput that results in tex(bra(1,0,0)) --> \bra{1,0,0}? Possibly texput
+isn't up to this task?
 
-texput ('bra, ["\\langle", "\\rvert"], 'matchfix); 
+ See https://tex.stackexchange.com/questions/214728/braket-notation-in-latex 
+ 
+ So we'll support typeseting with:  */
+
+texput ('bra, ["\\langle ", " \\rvert"], 'matchfix); 
 texput ('ket, ["\\lvert ", " \\langle"], 'matchfix);
 
 /* Tell Maxima that 'operator' is a feature. */
